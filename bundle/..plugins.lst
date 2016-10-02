@@ -1,0 +1,37 @@
+#|> About vim plugins found in ~/.vim/bundle
+
+*** camelcasemotion/: 'w,e,b' motion commands respect CamelCase
+  * Use 'W,E,B' for traditional (whitespace separated) behavior.
+
+*** NrrwRgn~/: Narrow Region to a temporary buffer
+  * Inspired by  Emacs's narrowing behavior
+
+*** vim-dirvish/: (justinmk) Simple Directory browser
+  * Replaces netrw, NERDTree.
+  * https://github.com/justinmk/vim-dirvish
+
+*** vim-latex~/: LaTeX mode
+  * Decent LaTeX mode
+  | But try vimtex!
+
+*** vim-sneak~/: (justinmk) two-letter fast motions
+  * Cleaner/leaner alternative to EasyMotion.
+
+*** supertab~/: Simple Auto-Complete
+  * Simpler than YouCompleteMe. Seems to be OK.
+
+*** UltiSnips~/: Ultimate Snippets
+  * Framework for an easy snippet insertions
+  * https://github.com/SirVer/ultisnips
+  - Use together with https://github.com/honza/vim-snippets
+
+*** Honza's vim-snippets:
+  * Collection of useful snippets for UntiSnips
+  * https://github.com/honza/vim-snippets
+
+*** vimtex: TeX/LaTeX plugin
+  * Lightweight, high quality, actively beeing developed (as of 2016).
+  - Works together with UltiSnips.
+
+##################################################
+## vim:tw=105:ft=text:fdm=indent:fdl=0:sw=2:fml=1:

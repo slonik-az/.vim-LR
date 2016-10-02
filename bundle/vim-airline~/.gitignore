@@ -1,0 +1,5 @@
+*~
+*.swp
+doc/tags
+*.lock
+.vim-flavor
