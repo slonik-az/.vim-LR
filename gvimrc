@@ -36,12 +36,13 @@ hi Visual  guifg=#000000 guibg=#FFFFFF gui=none
 """ Syntax highllight for open fold headers
 " hi hiLR  gui=bold  guifg=black  guibg=LightRed
 " hi hiLR   gui=bold guifg=Yellow guibg=DarkBlue
-hi hiLR gui=bold guifg=#ffff00 guibg=#0000cc
+hi hiLR gui=bold guifg=#ffff00 guibg=#0000d4
 hi hiLR2  gui=bold guifg=White guibg=Brown
 " hi hiLR2  gui=bold guifg=White guibg=DarkRed
 
 function! LR_Syntax_hi(ft)
-    syntax match hiLR /\m^\(##\|\/\/\|\/\*\|%%\|--\)*[ *#=~+-]*|>.*$/ containedin=ALL
+    syntax match hiLR /\m^\(##\|\/\/\|\/\*\|--\)*[ *#%|=~+-]*|>.*$/ containedin=ALL
+    syntax match hiLR /\m^\*\*\*[ \t].*/
     if(a:ft == "tex")
       syntax match hiLR /\m^.*\(<<<\|>>>\).*$/ containedin=ALL
       syntax spell toplevel " highlight misspelings
