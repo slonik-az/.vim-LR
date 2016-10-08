@@ -60,12 +60,12 @@ function! Tex_Complete(what, where)
 		let s:curline = strpart(getline('.'), 0, col('.'))
 		let s:prefix = matchstr(s:curline, '.*{\zs.\{-}\(}\|$\)')
 		" a command is of the type
-		" \psfig[option=value]{figure=}
+		" \includegraphics[option=value]{file name}
 		" Thus
-		" 	s:curline = '\psfig[option=value]{figure='
-		" (with possibly some junk before \psfig)
+		" 	s:curline = '\includegraphics[option=value]{file name'
+		" (with possibly some junk before \includegraphics)
 		" from which we need to extract
-		" 	s:type = 'psfig'
+		" 	s:type = 'includegraphics'
 		" 	s:typeoption = '[option=value]'
 		let pattern = '.*\\\(\w\{-}\)\(\[.\{-}\]\)*{\([^ [\]\t]\+\)\?$'
 		if s:curline =~ pattern
@@ -142,7 +142,7 @@ function! Tex_Complete(what, where)
 				endif
 			endif
 
-		elseif exists("s:type") && (s:type =~ 'includegraphics' || s:type == 'psfig') 
+		elseif exists("s:type") && s:type =~ 'includegraphics'
 			call Tex_SetupFileCompletion(
 				\ '', 
 				\ '^\.\\|\.tex$\\|\.bib$\\|\.bbl$\\|\.zip$\\|\.gz$', 
@@ -774,10 +774,10 @@ function! Tex_StartOutlineCompletion()
 
     call Tex_SetupOutlineSyntax()
 
-	exec 'nnoremap <buffer> <cr> '
+	exec 'nnoremap <buffer> <silent> <cr> '
 		\ .':cd '.s:origdir.'<CR>'
 		\ .':call Tex_FinishOutlineCompletion()<CR>'
-	exec 'nnoremap <buffer> q '
+	exec 'nnoremap <buffer> <silent> q '
 		\ .':cd '.s:origdir.'<CR>'
 		\ .':close<CR>'
 		\ .':call Tex_SwitchToInsertMode()<CR>'
@@ -836,8 +836,8 @@ function! Tex_FindBibFiles()
 	call Tex_Debug(":Tex_FindBibFiles: ", "view")
 
 	let mainfname = Tex_GetMainFileName(':p')
-	new
-	exec 'e ' . fnameescape(mainfname)
+	split
+	exec 'silent! e '.fnameescape(mainfname)
 
 	if search('\(%.*\)\@<!\\\(\(no\)\?bibliography\|addbibresource\(\[.*\]\)\?\){', 'w')
 
@@ -1044,12 +1044,9 @@ endfunction " }}}
 " Tex_CompleteCiteEntry: completes cite entry {{{
 " Description: 
 function! Tex_CompleteCiteEntry()
-	normal! 0
-	call search('\[\S\+\]$', 'W')
-	if getline('.') !~ '\[\S\+\]$'
-		call search('\[\S\+\]$', 'bW')
-	endif
-	
+	normal! $
+	call search('\[\S\+\]$', 'bc')
+
 	if getline('.') !~ '\[\S\+\]$'
 		return
 	endif

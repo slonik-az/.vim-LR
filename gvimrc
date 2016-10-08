@@ -36,13 +36,17 @@ hi Visual  guifg=#000000 guibg=#FFFFFF gui=none
 """ Syntax highllight for open fold headers
 " hi hiLR  gui=bold  guifg=black  guibg=LightRed
 " hi hiLR   gui=bold guifg=Yellow guibg=DarkBlue
-hi hiLR gui=bold guifg=#ffff00 guibg=#0000d4
-hi hiLR2  gui=bold guifg=White guibg=Brown
+hi hiLR  gui=bold guifg=#ffff00 guibg=#0000d4
+hi hiLR2 gui=bold guifg=#ffffff guibg=#0000d4
+hi hiLR3 gui=bold guifg=#ffff00 guibg=#e00000
 " hi hiLR2  gui=bold guifg=White guibg=DarkRed
 
 function! LR_Syntax_hi(ft)
     syntax match hiLR /\m^\(##\|\/\/\|\/\*\|--\)*[ *#%|=~+-]*|>.*$/ containedin=ALL
-    syntax match hiLR /\m^\*\*\*[ \t].*/
+    if(a:ft == "text")
+      syntax match hiLR2 "\m^\(\*\*\*\|###\|===\|---\)[ \t].*$" containedin=ALL
+      syntax match hiLR3 /\m^\s*\zs\((\d\+)\|[*#=o-]\)\ze\s/ containedin=ALL
+    endif
     if(a:ft == "tex")
       syntax match hiLR /\m^.*\(<<<\|>>>\).*$/ containedin=ALL
       syntax spell toplevel " highlight misspelings
@@ -56,7 +60,7 @@ endfunction
 
 augroup augLRsyn
   autocmd!
-  autocmd Syntax * call LR_Syntax_hi(&ft)
+  autocmd Syntax * if line('$')<12345 | call LR_Syntax_hi(&ft) |endif
   autocmd Filetype tex set foldmarker=<<<,>>>
   " autocmd Syntax * syntax match hiLR2 /\m^.*\({{{\|}}}\).*$/ containedin=ALL
   " autocmd Syntax * syntax match hiLR2 /\m^\(##\|\/\/\|\/\*\|%%\|--\)*[ *#=~+-]*|>.*$/ containedin=ALL
@@ -97,6 +101,7 @@ if  has('gui_macvim')
     noremap <D-Down> 3<C-E>
     noremap <D-Up> 3<C-Y>
     nnoremap <D-3> :nohlsearch<cr>
+    inoremap <D-3> <C-o>:nohlsearch<cr>
     """ Alternative <Esc>
     inoremap <D-Space> <Esc>
     noremap <D-Space> <Esc>

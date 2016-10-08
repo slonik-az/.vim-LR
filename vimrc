@@ -403,7 +403,8 @@ inoremap <silent> <D-/> <C-o>:call <SID>LR_move_cursor( virtcol('$')*3/4, 0)<CR>
 vnoremap <silent> <D-/> :<C-u>call <SID>LR_move_cursor( virtcol('$')*3/4, 1)<CR>
 
 " Clear search buffer
-:nnoremap <M-3> :nohlsearch<cr>
+:nnoremap <M-2> :nohlsearch<cr>
+:inoremap <M-2> <C-o>:nohlsearch<cr>
 
 " Command to use sudo when needed
 cmap w!! %!sudo tee > /dev/null %

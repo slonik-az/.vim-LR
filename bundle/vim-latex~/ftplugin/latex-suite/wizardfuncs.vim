@@ -102,14 +102,7 @@ function! Tex_section_adv(...) "{{{
 endfunction "}}}
 function! s:Tex_section_detection() "{{{
 	let pos = Tex_GetPos()
-	let last_section1 = search("\\\\\subparagraph\\|\\\\paragraph\\|\\\\subsubsection\\|\\\\subsection\\|\\\\section\\|\\\\chapter\\|\\\part\)", "b")
-	call Tex_SetPos(pos)
-	let last_section2 = search("\\\\\part\\|\\\\chapter\\|\\\\section\\|\\\\subsection\\|\\\\subsubsection\\|\\\\paragraph\\|\\\subparagraph\)", "b")
-	if last_section1 > last_section2
-		let last_section = last_section1
-	else
-		let last_section = last_section2
-	endif
+	let last_section = search("\\\\part\\|\\\\chapter\\|\\\\section\\|\\\\subsection\\|\\\\subsubsection\\|\\\\paragraph\\|\\\\subparagraph", "bW")
 	if last_section != 0
 		exe last_section
 		if getline(".") =~ "\\\\part"
@@ -237,7 +230,7 @@ endfunction " }}}
 " Tables of shortcuts
 " ============================================================================== 
 "
-command! -nargs=? Tshortcuts call Tex_shortcuts(<f-args>)<CR>
+command! -nargs=? Tshortcuts call Tex_shortcuts(<f-args>)
 
 " Tex_shortcuts: Show shortcuts in terminal after : command {{{
 function! Tex_shortcuts(...)
@@ -295,10 +288,9 @@ let g:environmentshortcuts = ''
 \."\n ETE   ".g:Tex_Leader2."te   table               ETB   ".g:Tex_Leader2."tb   thebibliography"
 \."\n ETG   ".g:Tex_Leader2."tg   tabbing             ENO   ".g:Tex_Leader2."no   note"
 \."\n ETR   ".g:Tex_Leader2."tr   tabular             EOV   ".g:Tex_Leader2."ov   overlay"
-\."\n EAL   ".g:Tex_Leader2."al   align               "
 \."\n EAR   ".g:Tex_Leader2."ar   array               ESL   ".g:Tex_Leader2."sl   slide"
 \."\n EDM   ".g:Tex_Leader2."dm   displaymath         EAB   ".g:Tex_Leader2."ab   abstract"
-\."\n EEA   ".g:Tex_Leader2."ea   eqnarray            EAP   ".g:Tex_Leader2."ap   appendix"
+\."\n EAL   ".g:Tex_Leader2."al   align               EAP   ".g:Tex_Leader2."ap   appendix"
 \."\n EEQ   ".g:Tex_Leader2."eq   equation            ECE   ".g:Tex_Leader2."ce   center"
 \."\n EDO   ".g:Tex_Leader2."do   document            EFI   ".g:Tex_Leader2."fi   figure"
 \."\n EFC   ".g:Tex_Leader2."fc   filecontents        ELR   ".g:Tex_Leader2."lr   lrbox"
