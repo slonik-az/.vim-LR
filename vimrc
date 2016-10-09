@@ -197,11 +197,14 @@ let g:ctrlp_custom_ignore = '\v[\/]((node_modules)|\.(git|svn|grunt|sass-cache))
 let g:ackprg = 'ag --nogroup --nocolor --column'
 
 """ Airline (status line)
-" let g:airline_powerline_fonts = 0
-let g:airline_powerline_fonts = 1
 let g:airline_theme='darkLR'
+if has("gui_running")
+   let g:airline_powerline_fonts = 1
+else
+   let g:airline_powerline_fonts = 0
+endif
 " enable/disable showing a summary of changed hunks under source control.
-  let g:airline#extensions#hunks#enabled = 0
+let g:airline#extensions#hunks#enabled = 0
 
 " Gist authorisation settings
 let g:github_user = $GITHUB_USER
@@ -229,7 +232,7 @@ let NERDTreeShowLineNumbers=1
 " Searching the file system
 map <leader>' :NERDTreeToggle<cr>
 
-" Tabularize
+""" Tabularize
 map <Leader>e :Tabularize /=<cr>
 map <Leader>c :Tabularize /:<cr>
 map <Leader>es :Tabularize /=\zs<cr>

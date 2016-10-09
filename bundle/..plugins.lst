@@ -6,7 +6,7 @@
 *** NrrwRgn~/: Narrow Region to a temporary buffer
   * Inspired by  Emacs's narrowing behavior
 
-*** vim-dirvish/: (justinmk) Simple Directory browser
+*** vim-dirvish~/: (justinmk) Simple Directory browser
   * Replaces netrw, NERDTree.
   * https://github.com/justinmk/vim-dirvish
 
@@ -32,6 +32,10 @@
 *** vimtex: TeX/LaTeX plugin
   * Lightweight, high quality, actively beeing developed (as of 2016).
   - Works together with UltiSnips.
+
+*** vim-unimpaired~/: Tim Pope's paired keybindings
+  * https://github.com/tpope/vim-unimpaired
+  * Useful bindings that are grouped in pairs
 
 ##################################################
 ## vim:tw=105:ft=text:fdm=indent:fdl=0:sw=2:fml=1:

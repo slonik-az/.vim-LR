@@ -1,5 +1,8 @@
 """ GUI specific settings for gvim
-""" Theme
+""" ------------------------------
+
+""" Theme       {{{
+
 set background=dark
 " colorscheme koehler
 colorscheme vividchalk
@@ -8,12 +11,16 @@ colorscheme vividchalk
 " Trying to undercurl misspelled words in help, tex filetypes.
 " syntax spell toplevel
 
+" }}}
+
 """ Set fonts       {{{
+
 " set guifont=Cousine\ for\ Powerline:h17
 " set guifont=Ubuntu\ Mono\ derivative\ Powerline:h19
 " set guifont=Literation\ Mono\ Powerline:h17
 set guifont=DejaVu\ Sans\ Mono\ for\ Powerline:h16
 " set guifont=Menlo\ Regular:h16
+
 " }}}
 
 """ Set colors & highlighting       {{{
@@ -39,19 +46,23 @@ hi Visual  guifg=#000000 guibg=#FFFFFF gui=none
 hi hiLR  gui=bold guifg=#ffff00 guibg=#0000d4
 hi hiLR2 gui=bold guifg=#ffffff guibg=#0000d4
 hi hiLR3 gui=bold guifg=#ffff00 guibg=#e00000
+hi hiLR4 gui=bold guifg=#ff0000 guibg=#00ffff
 " hi hiLR2  gui=bold guifg=White guibg=DarkRed
 
 function! LR_Syntax_hi(ft)
-    syntax match hiLR /\m^\(##\|\/\/\|\/\*\|--\)*[ *#%|=~+-]*|>.*$/ containedin=ALL
+    syntax match hiLR "\m^\(##\|//\|/\*\|--\)*[ *#%|=~+-]*|>.*$" containedin=ALL
+    syntax match hiLR4 "\m!\(IMPORTANT\|TODO\)!" containedin=ALL
     if(a:ft == "text")
       syntax match hiLR2 "\m^\(\*\*\*\|###\|===\|---\)[ \t].*$" containedin=ALL
       syntax match hiLR3 /\m^\s*\zs\((\d\+)\|[*#=o-]\)\ze\s/ containedin=ALL
     endif
     if(a:ft == "tex")
-      syntax match hiLR /\m^.*\(<<<\|>>>\).*$/ containedin=ALL
+      syntax match hiLR /\m^.*\(<<<\|>>>\).*$/
+      syntax match hiLR3 /\m\(<<<\|>>>\)\d*/ containedin=ALL
       syntax spell toplevel " highlight misspelings
     else
-      syntax match hiLR /\m^.*\({{{\|}}}\).*$/ containedin=ALL
+      syntax match hiLR /\m^.*\({{{\|}}}\).*$/
+      syntax match hiLR3 /\m\({{{\|}}}\)\d*/ containedin=ALL
       if(a:ft == "help")
         syntax spell toplevel " highlight misspelings
       endif
