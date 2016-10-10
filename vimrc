@@ -275,6 +275,13 @@ let g:Tex_ViewRule_pdf='Skim'
 " Use <leader>tc  to toggle on/off manually.
 let g:colorizer_startup = 0
 
+""" BufExplorer
+let g:bufExplorerShowNoName=1        " Show [No Name] buffers.
+let g:bufExplorerShowRelativePath=1  " Show relative paths.
+let g:bufExplorerShowUnlisted=1      " Show unlisted buffers.
+let g:bufExplorerSortBy='mru'        " Sort by most recently used.
+" let g:bufExplorerSortBy='name'       " Sort by the buffer's name.
+
 " }}}
 
 " Commands, Functions {{{

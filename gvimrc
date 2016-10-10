@@ -1,6 +1,15 @@
 """ GUI specific settings for gvim
 """ ------------------------------
 
+""" Preamble        {{{1
+
+" My gvim autocmd group defined and cleared here
+augroup LR_gvim
+  autocmd!
+augroup END
+
+" }}}1
+
 """ Theme       {{{
 
 set background=dark
@@ -30,6 +39,14 @@ set cursorline
 hi CursorLine  gui=bold guibg=Grey20
 " hi CursorColumn gui=bold guibg=darkred guifg=white
 hi CursorLineNr gui=bold guifg=#000088 guibg=#f08000
+
+""" Mode specific LineNr settings. [Changes Globally. Disappointing!]
+let g:LineNr_Insert_bg=    '#550055'
+let g:LineNr_NonInsert_bg= '#004400'
+augroup LR_gvim
+  autocmd InsertEnter * :exe 'hi LineNr guibg=' . g:LineNr_Insert_bg
+  autocmd InsertLeave * :exe 'hi LineNr guibg=' . g:LineNr_NonInsert_bg
+augroup END
 
 """ Folded line colors
 hi Folded  gui=bold guifg=White guibg=Brown
@@ -69,8 +86,7 @@ function! LR_Syntax_hi(ft)
     endif
 endfunction
 
-augroup augLRsyn
-  autocmd!
+augroup LR_gvim
   autocmd Syntax * if line('$')<12345 | call LR_Syntax_hi(&ft) |endif
   autocmd Filetype tex set foldmarker=<<<,>>>
   " autocmd Syntax * syntax match hiLR2 /\m^.*\({{{\|}}}\).*$/ containedin=ALL

@@ -1,5 +1,9 @@
 #|> About vim plugins found in ~/.vim/bundle
 
+*** bufexplorer~/: Buffer Explorer
+  * Powerful & convenient buffer explorer
+  * https://github.com/jlanzarotta/bufexplorer
+
 *** camelcasemotion/: 'w,e,b' motion commands respect CamelCase
   * Use 'W,E,B' for traditional (whitespace separated) behavior.
 
@@ -9,6 +13,10 @@
 *** vim-dirvish~/: (justinmk) Simple Directory browser
   * Replaces netrw, NERDTree.
   * https://github.com/justinmk/vim-dirvish
+
+*** vim-HiLinkTrace~/: Show syntax stack & hilight info
+  * :HLT command shows syntax/highlight info
+  * https://github.com/gerw/vim-HiLinkTrace
 
 *** vim-latex~/: LaTeX mode
   * Decent LaTeX mode

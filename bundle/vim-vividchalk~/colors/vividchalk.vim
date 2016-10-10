@@ -114,7 +114,7 @@ highlight Cursor        guifg=Black guibg=White ctermfg=Black ctermbg=White
 call s:hibg("ColorColumn","#333333","DarkGrey",81)
 call s:hibg("CursorLine","#333333","DarkGrey",81)
 call s:hibg("CursorColumn","#333333","DarkGrey",81)
-highlight NonText       guifg=#404040 ctermfg=8
+highlight NonText       guifg=#aaffaa ctermfg=8
 highlight SpecialKey    guifg=#404040 ctermfg=8
 highlight Directory     none
 high link Directory     Identifier
@@ -124,7 +124,7 @@ highlight Search        guifg=White guibg=Red ctermfg=White ctermbg=Red gui=bold
 highlight IncSearch     guifg=White guibg=Red ctermfg=White ctermbg=Red gui=bold cterm=bold
 highlight MoreMsg       guifg=#00AA00 ctermfg=Green
 highlight LineNr        guifg=#DDEEFF ctermfg=White
-call s:hibg("LineNr"    ,"#004400","DarkBlue",80) " #004400  #222222
+call s:hibg("LineNr"    ,"#004400","DarkGreen",80) " #004400  #222222
 highlight Question      none
 high link Question      MoreMsg
 highlight Title         guifg=Magenta ctermfg=Magenta

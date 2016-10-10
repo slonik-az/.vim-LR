@@ -16,3 +16,7 @@ set nosmarttab      " <TAB> inserts only tabstop or softtabstop spaces, never sh
 """ Show < or > when characters are not displayed on the left or right.
 " :set list listchars=precedes:<,extends:>
 
+""" vim-HiLinkTrace: trace syntax stack, show hilight info
+" Unmap key binding. Use the command :HLT instead!
+unmap <Leader>hlt
+
