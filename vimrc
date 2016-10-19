@@ -72,8 +72,9 @@ set ignorecase
 set hidden
 
 """ Turn word wrap on/off
-set wrap lbr    " wrap between words on linebreak
+" set wrap lbr    " wrap between words on linebreak
 " set nowrap    " turn wrap off
+" let &showbreak = '+++ '  " wrapped line indicator string
 
 " Allow backspace to delete end of line, indent and start of line characters
 set backspace=indent,eol,start
@@ -99,8 +100,10 @@ set laststatus=2
 " Set the status line to something useful
 set statusline=%f\ %=L:%l/%L\ %c\ (%p%%)
 
-" Hide the toolbar
+" Hide the toolbar, scrollbars
 set guioptions-=T
+" set guioptions-=r
+set guioptions-=L
 
 " UTF encoding
 set encoding=utf-8
@@ -151,6 +154,13 @@ let g:tex_flavor='latex'
 let g:Tex_Flavor='latex'
 let g:tex_fold_enabled=1
 " let g:tex_nospell=0
+
+""" Python settings
+" Maximum highlighting. For details ':h python.vim'.
+let python_highlight_all = 1
+
+""" Grep settings
+set grepprg=grep\ -nH
 
 " }}}
 

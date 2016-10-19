@@ -22,6 +22,8 @@
   * Decent LaTeX mode
   | But try vimtex!
 
+*** vim-python-pep8-indent~/: Python indentation PEP8 compliant
+
 *** vim-sneak~/: (justinmk) two-letter fast motions
   * Cleaner/leaner alternative to EasyMotion.
 

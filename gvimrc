@@ -68,10 +68,10 @@ hi hiLR4 gui=bold guifg=#ff0000 guibg=#00ffff
 
 function! LR_Syntax_hi(ft)
     syntax match hiLR "\m^\(##\|//\|/\*\|--\)*[ *#%|=~+-]*|>.*$" containedin=ALL
-    syntax match hiLR4 "\m!\(IMPORTANT\|TODO\)!" containedin=ALL
+    syntax match hiLR4 "\m!\(IMPORTANT\|TODO\|NOTE\)!" containedin=ALL
     if(a:ft == "text")
       syntax match hiLR2 "\m^\(\*\*\*\|###\|===\|---\)[ \t].*$" containedin=ALL
-      syntax match hiLR3 /\m^\s*\zs\((\d\+)\|[*#=o-]\)\ze\s/ containedin=ALL
+      syntax match hiLR3 /\m^\s*\zs\(([0-9*#=o+-]\+)\|[*#=o+-]\)\ze\s/ containedin=ALL
     endif
     if(a:ft == "tex")
       syntax match hiLR /\m^.*\(<<<\|>>>\).*$/
