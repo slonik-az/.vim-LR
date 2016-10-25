@@ -12,9 +12,12 @@ augroup END
 
 """ Theme       {{{
 
-set background=dark
+" colorscheme lr-light
+
+" set background=dark
 " colorscheme koehler
-colorscheme vividchalk
+"" <!LR> favorite dark background colorscheme
+" colorscheme vividchalk
 " Switch syntax highlighting on, when the terminal has colors
 " syntax on
 " Trying to undercurl misspelled words in help, tex filetypes.
@@ -27,80 +30,19 @@ colorscheme vividchalk
 " set guifont=Cousine\ for\ Powerline:h17
 " set guifont=Ubuntu\ Mono\ derivative\ Powerline:h19
 " set guifont=Literation\ Mono\ Powerline:h17
-set guifont=DejaVu\ Sans\ Mono\ for\ Powerline:h16
+" set guifont=DejaVu\ Sans\ Mono\ for\ Powerline:h16
+" set guifont=Source\ Code\ Pro\ Semibold:h16
+set guifont=DejaVu\ Sans\ Mono\ Bold\ for\ Powerline:h16
+" set guifont=DejaVu\ Sans\ Mono\ for\ Powerline:h16
 " set guifont=Menlo\ Regular:h16
-
-" }}}
-
-""" Set colors & highlighting       {{{
-""" Highlight the line where cursor is (aka current line)
-set cursorline
-" set cursorcolumn
-hi CursorLine  gui=bold guibg=Grey20
-" hi CursorColumn gui=bold guibg=darkred guifg=white
-hi CursorLineNr gui=bold guifg=#000088 guibg=#f08000
-
-""" Mode specific LineNr settings. [Changes Globally. Disappointing!]
-let g:LineNr_Insert_bg=    '#550055'
-let g:LineNr_NonInsert_bg= '#004400'
-augroup LR_gvim
-  autocmd InsertEnter * :exe 'hi LineNr guibg=' . g:LineNr_Insert_bg
-  autocmd InsertLeave * :exe 'hi LineNr guibg=' . g:LineNr_NonInsert_bg
-augroup END
-
-""" Folded line colors
-hi Folded  gui=bold guifg=White guibg=Brown
-" hi Folded  gui=bold guifg=#ffffff  guibg=#ea5500
-
-""" Colors for Visual mode selection
-" hi Visual  guibg=grey50 gui=reverse
-" hi Visual  guibg=grey33 gui=none
-hi Visual  guifg=#000000 guibg=#FFFFFF gui=none
-
-""" Syntax highllight for open fold headers
-" hi hiLR  gui=bold  guifg=black  guibg=LightRed
-" hi hiLR   gui=bold guifg=Yellow guibg=DarkBlue
-hi hiLR  gui=bold guifg=#ffff00 guibg=#0000d4
-hi hiLR2 gui=bold guifg=#ffffff guibg=#0000d4
-hi hiLR3 gui=bold guifg=#ffff00 guibg=#e00000
-hi hiLR4 gui=bold guifg=#ff0000 guibg=#00ffff
-" hi hiLR2  gui=bold guifg=White guibg=DarkRed
-
-function! LR_Syntax_hi(ft)
-    syntax match hiLR "\m^\(##\|//\|/\*\|--\)*[ *#%|=~+-]*|>.*$" containedin=ALL
-    syntax match hiLR4 "\m!\(IMPORTANT\|TODO\|NOTE\)!" containedin=ALL
-    if(a:ft == "text")
-      syntax match hiLR2 "\m^\(\*\*\*\|###\|===\|---\)[ \t].*$" containedin=ALL
-      syntax match hiLR3 /\m^\s*\zs\(([0-9*#=o+-]\+)\|[*#=o+-]\)\ze\s/ containedin=ALL
-    endif
-    if(a:ft == "tex")
-      syntax match hiLR /\m^.*\(<<<\|>>>\).*$/
-      syntax match hiLR3 /\m\(<<<\|>>>\)\d*/ containedin=ALL
-      syntax spell toplevel " highlight misspelings
-    else
-      syntax match hiLR /\m^.*\({{{\|}}}\).*$/
-      syntax match hiLR3 /\m\({{{\|}}}\)\d*/ containedin=ALL
-      if(a:ft == "help")
-        syntax spell toplevel " highlight misspelings
-      endif
-    endif
-endfunction
-
-augroup LR_gvim
-  autocmd Syntax * if line('$')<12345 | call LR_Syntax_hi(&ft) |endif
-  autocmd Filetype tex set foldmarker=<<<,>>>
-  " autocmd Syntax * syntax match hiLR2 /\m^.*\({{{\|}}}\).*$/ containedin=ALL
-  " autocmd Syntax * syntax match hiLR2 /\m^\(##\|\/\/\|\/\*\|%%\|--\)*[ *#=~+-]*|>.*$/ containedin=ALL
-  " autocmd Syntax * syntax match Folded /^\(##\|\/\/\|\/\*\|%%\|--\)*[ *#=~+-]*|>.*$\|^.*\({{{\|}}}\).*$/
-augroup END
 
 " }}}
 
 """ Key mappings for gvim       {{{
 
 " Convenient mappings to scroll window up/down
-noremap <M-Down> <C-E>
-noremap <M-Up> <C-Y>
+noremap <M-Down> 3<C-E>
+noremap <M-Up> 3<C-Y>
 noremap <C-Q> <C-Y>
 noremap <S-Down> 3j
 noremap <S-Up> 3k
@@ -119,20 +61,37 @@ if  has('gui_macvim')
     macmenu File.Close key=<nop>
     " free command-p
     macmenu File.Print key=<nop>
+    " free command-f, command-g, shift-command-g
+    macmenu Edit.Find.Find\.\.\. key=<nop>
+    macmenu Edit.Find.Find\ Next key=<nop>
+    macmenu Edit.Find.Find\ Previous key=<nop>
     " free command-l
     macmenu Tools.List\ Errors key=<nop>
     " free command-b
     macmenu Tools.Make key=<nop>
     " To free comand-, using System Preferences->Keyboard->Shortcuts->App Shortcuts.
-    " Command-key mappings
-    noremap <D-Down> 3<C-E>
-    noremap <D-Up> 3<C-Y>
+    """ Command-key mappings
+    " Vertical scrolling in NORMal, Visual modes
+    noremap <D-Down> <C-E>
+    noremap <D-j>    <C-E>
+    noremap <D-Up>   <C-Y>
+    noremap <D-k>    <C-Y>
     nnoremap <D-3> :nohlsearch<cr>
     inoremap <D-3> <C-o>:nohlsearch<cr>
+    " and scrolling in insert mode
+    inoremap <D-Down> <C-X><C-E>
+    inoremap <D-j>    <C-X><C-E>
+    inoremap <D-Up>   <C-X><C-Y>
+    inoremap <D-k>    <C-X><C-Y>
+    " Horizontal scrolling in Normal, Visual modes
+    noremap <D-M-Left>  zh
+    noremap <D-M-Right> zl
+    noremap <D-M-Up>    zH
+    noremap <D-M-Down>  zL
     """ Alternative <Esc>
     inoremap <D-Space> <Esc>
-    noremap <D-Space> <Esc>
+    noremap  <D-Space> <Esc>
 endif
 " }}}
 
-" vim:fdm=marker:fdl=0:
+" vim:fdm=marker:fdl=0:sw=4:

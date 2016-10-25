@@ -25,7 +25,7 @@ set tw=104
 """ Enable spelling by default. Disable on per-file basis via modeline nospell
 :setlocal spell spelllang=en_us
 
-""" }}}
+" }}}
 " ---------------------------------------------------------------------------- "
 
 " Settings {{{
@@ -164,17 +164,19 @@ set grepprg=grep\ -nH
 
 " }}}
 
-" Plugins {{{
+" Plugins {{{1
 " Activate Pathogen
 execute pathogen#infect()
 syntax on
 filetype plugin indent on
 
-" Theme
+"""" Theme
 " set background=light
 " colorscheme Tomorrow-Night
-set background=dark
-colorscheme koehler
+" set background=dark
+" colorscheme koehler
+"" My light colorscheme
+colorscheme lr-light
 
 """ netrw:
 " Set built-in file system explorer to use layout similar to the NERDTree plugin
@@ -215,6 +217,7 @@ else
 endif
 " enable/disable showing a summary of changed hunks under source control.
 let g:airline#extensions#hunks#enabled = 0
+  let g:airline#extensions#whitespace#checks = []
 
 " Gist authorisation settings
 let g:github_user = $GITHUB_USER
@@ -262,15 +265,23 @@ sunmap <M-b>
 " sunmap b
 " sunmap e
 
-""" Indentwise settings
-map <C-S-Up> <Plug>(IndentWisePreviousEqualIndent)
-sunmap <C-S-Up>
-map <C-S-Down> <Plug>(IndentWiseNextEqualIndent)
-sunmap <C-S-Down>
-map <C-S-Left> <Plug>(IndentWisePreviousLesserIndent)
-sunmap <C-S-Left>
-map <C-S-Right> <Plug>(IndentWiseNextGreaterIndent)
-sunmap <C-S-Right>
+""" Indentwise settings     {{{
+" Indentwise plugin is half-broken. I am using indent-motion plugin to fill the gaps.
+" <C-S-Up>/<C-S-Down> move cursor to Begin/End of indent-delimited block, see indent-motion plugin.
+" map <C-M-S-Up> <Plug>(IndentWisePreviousEqualIndent)
+" sunmap <C-M-S-Up>
+" map <C-M-S-Down> <Plug>(IndentWiseNextEqualIndent)
+" sunmap <C-M-S-Down>
+" map <C-S-Left> <Plug>(IndentWisePreviousLesserIndent)
+" sunmap <C-S-Left>
+" map <C-S-Right> <Plug>(IndentWiseNextGreaterIndent)
+" sunmap <C-S-Right>
+" The following functions don't seem to work. Replaced with FNs from indent-motion plugin.
+" map <C-S-Up> <Plug>IndentWiseBlockScopeBoundaryBegin
+" sunmap <C-S-Up>
+" map <C-S-Down> <Plug>IndentWiseBlockScopeBoundaryEnd
+" sunmap <C-S-Down>
+    " }}}
 
 """ vim-latex AKA latex-suite
 " Disable folding in latex-suite plugin
@@ -292,7 +303,35 @@ let g:bufExplorerShowUnlisted=1      " Show unlisted buffers.
 let g:bufExplorerSortBy='mru'        " Sort by most recently used.
 " let g:bufExplorerSortBy='name'       " Sort by the buffer's name.
 
-" }}}
+""" YouCompleteMe (YCM) setting     {{{
+if globpath(&runtimepath, 'plugin/youcompleteme.vim', 1) !=# ''
+  " Only if YCM is in the load path
+  " echom "--- LR: YCM is in the load path!!"
+  " Show documentation in a preview-window
+  noremap <D-g>D :YcmCompleter GetDoc<CR>
+  inoremap <D-g>D <C-o>:YcmCompleter GetDoc<CR>
+  " GoTo declaration
+  noremap <D-g>d :YcmCompleter GoToDeclaration<CR>
+  inoremap <D-g>d <C-o>:YcmCompleter GoToDeclaration<CR>
+  " GoTo definition
+  noremap <D-g><D-d> :YcmCompleter GoToDefinition<CR>
+  inoremap <D-g><D-d> <C-o>:YcmCompleter GoToDefinition<CR>
+  " Limit YCM to only these filetypes
+  let g:ycm_filetype_whitelist= {'cpp':1, 'c':1, 'python':1, 'lua':1}
+
+  " Do not waste <C-Space> for this.
+  let g:ycm_key_invoke_completion = '<A-Space>'
+
+  " C/C++ settings
+  " Fallback ycm_extra_config
+  let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
+  " Error/Warning gutter symbols
+  let g:ycm_error_symbol  = '!>'
+  let g:ycm_warning_symbol= '?>'
+endif
+    " }}}
+
+" }}}1
 
 " Commands, Functions {{{
 
@@ -325,7 +364,7 @@ endfun
 " file formats
 autocmd Filetype gitcommit setlocal spell textwidth=88
 autocmd Filetype markdown setlocal wrap linebreak nolist textwidth=0 wrapmargin=0 " http://vim.wikia.com/wiki/Word_wrap_without_line_breaks
-autocmd FileType sh,cucumber,ruby,yaml,zsh,vim setlocal shiftwidth=2 tabstop=4 expandtab
+autocmd FileType sh,cucumber,ruby,yaml,zsh,vim setlocal shiftwidth=2 tabstop=4 softtabstop=4 expandtab
 
 " specify syntax highlighting for specific files
 autocmd BufRead,BufNewFile *.note,*.notes setfiletype text
@@ -426,6 +465,9 @@ vnoremap <silent> <D-/> :<C-u>call <SID>LR_move_cursor( virtcol('$')*3/4, 1)<CR>
 :nnoremap <M-2> :nohlsearch<cr>
 :inoremap <M-2> <C-o>:nohlsearch<cr>
 
+""" Simplier alias for g% navigation. 5 is the same key as % w/o shift
+map g5 g%
+
 " Command to use sudo when needed
 cmap w!! %!sudo tee > /dev/null %
 
@@ -451,10 +493,6 @@ noremap <C-W>= <C-W>+
 " Handling horizontal Vim windows doesn't appear to be possible.
 " Attempting to map <C-W> < and > didn't work
 " Same with mapping <C-W>|
-
-" Make splitting Vim windows easier
-map <leader>; <C-W>s
-map <leader>` <C-W>v
 
 " Running Tests...
 " See also <https://gist.github.com/8114940>

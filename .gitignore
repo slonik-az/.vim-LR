@@ -1,5 +1,9 @@
 *~
 *.swp
+*.pyc
+
 !/bundle/*~/
 
 .netrwhist
+o
+o.log

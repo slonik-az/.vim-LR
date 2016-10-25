@@ -1,0 +1,84 @@
+""" Set colors & highlighting       {{{
+    " LineNr, CursorLine settings   {{{
+
+if 0
+
+""" Highlight the line where cursor is (aka current line)
+set cursorline
+" set cursorcolumn
+" hi CursorLine  gui=bold guibg=Grey20
+" hi CursorColumn gui=bold guibg=darkred guifg=white
+hi CursorLineNr gui=bold guifg=#000088 guibg=#f08000
+
+" s:fix_CursorLine is called by autocmd.
+function! s:fix_CursorLine(diff)
+    if  a:diff
+        hi CursorLine  gui=bold guibg=NONE
+        set foldcolumn=0 " if non-zero eats precious horizontal space in vimdiff vertical split.
+    else
+        hi CursorLine  gui=bold guibg=Grey20
+    endif
+endfunction
+
+""" Mode specific LineNr settings. [Changes Globally. Disappointing!]
+let g:LineNr_Insert_bg=    '#550055'
+let g:LineNr_NonInsert_bg= '#004400'
+augroup LR_gvim
+  autocmd InsertEnter * :exe 'hi LineNr guifg=White guibg=' . g:LineNr_Insert_bg
+  autocmd InsertLeave * :exe 'hi LineNr guifg=White guibg=' . g:LineNr_NonInsert_bg
+  autocmd FilterWritePre * :call s:fix_CursorLine(&diff)
+augroup END
+
+    " }}}
+
+""" Folded line colors
+hi Folded  gui=bold guifg=White guibg=Brown
+" hi Folded  gui=bold guifg=#ffffff  guibg=#ea5500
+
+""" Colors for Visual mode selection
+" hi Visual  guibg=grey50 gui=reverse
+" hi Visual  guibg=grey33 gui=none
+" hi Visual  guifg=#000000 guibg=#FFFFFF gui=none
+
+""" Syntax highllight for open fold headers
+" hi hiLR  gui=bold  guifg=black  guibg=LightRed
+" hi hiLR   gui=bold guifg=Yellow guibg=DarkBlue
+hi hiLR  gui=bold guifg=#ffff00 guibg=#0000d4
+hi hiLR2 gui=bold guifg=#ffffff guibg=#0000d4
+hi hiLR3 gui=bold guifg=#ffff00 guibg=#e00000
+hi hiLR4 gui=bold guifg=#ff0000 guibg=#00ffff
+" hi hiLR2  gui=bold guifg=White guibg=DarkRed
+
+function! LR_Syntax_hi(ft)
+    syntax match hiLR "\m^\(##\|//\|/\*\|--\)*[ *#%|=~+-]*|>.*$" containedin=ALL
+    syntax match hiLR4 "\m!\(IMPORTANT\|TODO\|NOTE\)!" containedin=ALL
+    if(a:ft == "text")
+      syntax match hiLR2 "\m^\(\*\*\*\|###\|===\|---\)[ \t].*$" containedin=ALL
+      syntax match hiLR3 /\m^\s*\zs\(([0-9*#=o+-]\+)\|[*#=o+-]\)\ze\s/ containedin=ALL
+    endif
+    if(a:ft == "tex")
+      syntax match hiLR /\m^.*\(<<<\|>>>\).*$/
+      syntax match hiLR3 /\m\(<<<\|>>>\)\d*/ containedin=ALL
+      syntax spell toplevel " highlight misspelings
+    else
+      syntax match hiLR /\m^.*\({{{\|}}}\).*$/
+      syntax match hiLR3 /\m\({{{\|}}}\)\d*/ containedin=ALL
+      if(a:ft == "help")
+        syntax spell toplevel " highlight misspelings
+      endif
+    endif
+endfunction
+
+augroup LR_gvim
+  autocmd Syntax * if line('$')<12345 | call LR_Syntax_hi(&ft) |endif
+  autocmd Filetype tex set foldmarker=<<<,>>>
+  " autocmd Syntax * syntax match hiLR2 /\m^.*\({{{\|}}}\).*$/ containedin=ALL
+  " autocmd Syntax * syntax match hiLR2 /\m^\(##\|\/\/\|\/\*\|%%\|--\)*[ *#=~+-]*|>.*$/ containedin=ALL
+  " autocmd Syntax * syntax match Folded /^\(##\|\/\/\|\/\*\|%%\|--\)*[ *#=~+-]*|>.*$\|^.*\({{{\|}}}\).*$/
+augroup END
+
+endif
+
+" }}}
+
+

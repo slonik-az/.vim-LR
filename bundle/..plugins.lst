@@ -7,6 +7,9 @@
 *** camelcasemotion/: 'w,e,b' motion commands respect CamelCase
   * Use 'W,E,B' for traditional (whitespace separated) behavior.
 
+*** MoveByIndent~/: <!LR> move by indentation
+  * My own plugin. Should be the best :-)
+
 *** NrrwRgn~/: Narrow Region to a temporary buffer
   * Inspired by  Emacs's narrowing behavior
 
@@ -25,6 +28,7 @@
 *** vim-python-pep8-indent~/: Python indentation PEP8 compliant
 
 *** vim-sneak~/: (justinmk) two-letter fast motions
+  * Extends fF motions to two keys. sS are the pending operators.
   * Cleaner/leaner alternative to EasyMotion.
 
 *** supertab~/: Simple Auto-Complete
@@ -46,6 +50,8 @@
 *** vim-unimpaired~/: Tim Pope's paired keybindings
   * https://github.com/tpope/vim-unimpaired
   * Useful bindings that are grouped in pairs
+
+*** YouCompleteMe~/: Comprehensive AutoComplete engine
 
 ##################################################
 ## vim:tw=105:ft=text:fdm=indent:fdl=0:sw=2:fml=1:
