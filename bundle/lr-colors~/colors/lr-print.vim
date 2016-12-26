@@ -26,7 +26,7 @@ hi ModeMsg term=bold cterm=bold gui=bold
 " hi StatusLine term=reverse,bold cterm=reverse,bold gui=reverse,bold
 " hi StatusLineNC term=reverse cterm=reverse gui=reverse
 hi VertSplit term=reverse cterm=reverse gui=reverse
-hi Visual term=NONE ctermfg=White ctermbg=Black gui=bold guibg=#ff0000 guifg=#00ffff
+hi Visual term=NONE ctermfg=White ctermbg=Black gui=bold guifg=Red guibg=#00ff00
 hi VisualNOS term=NONE ctermfg=White ctermbg=Black gui=bold guifg=White guibg=Black
 " hi VisualNOS term=underline,bold cterm=underline,bold gui=underline,bold
 hi DiffText term=reverse cterm=bold ctermbg=Yellow gui=bold guibg=Yellow
@@ -37,7 +37,7 @@ hi CursorLine term=underline cterm=underline gui=bold guibg=grey80
 hi CursorLineNr gui=bold guifg=#000088 guibg=#f08000
 hi CursorColumn term=reverse ctermbg=grey gui=bold guibg=grey50
 hi Directory term=bold ctermfg=DarkBlue gui=bold guifg=Blue
-hi LineNr term=underline gui=bold guibg=#004400 guifg=White
+hi LineNr term=underline gui=bold guibg=Grey95 guifg=Black
 hi MoreMsg term=bold ctermfg=DarkGreen gui=bold guifg=SeaGreen
 hi NonText term=bold ctermfg=Blue gui=bold guifg=Blue guibg=grey80
 hi Question term=standout ctermfg=DarkGreen gui=bold guifg=SeaGreen

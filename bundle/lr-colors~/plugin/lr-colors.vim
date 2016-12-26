@@ -33,20 +33,26 @@ let g:LineNr_NonInsert_bg= '#004400'
 function! LR_Syntax_hi(ft)
     syntax match Title "\m^\(##\|//\|/\*\|--\)*[ *#%|=~+-]*|>.*$" containedin=ALL
     syntax match hiLR4 "\m!\(IMPORTANT\|TODO\|NOTE\)!" containedin=ALL
-    if(a:ft == "text")
-      syntax match hiLR "\m^\(\*\*\*\|###\|===\|---\)[ \t].*$" containedin=ALL
-      syntax match hiLR3 /\m^\s*\zs\(([0-9*#=o+-]\+)\|[*#=o+-]\)\ze\s/ containedin=ALL
-    endif
-    if(a:ft == "tex")
-      syntax match hiLR /\m^.*\(<<<\|>>>\).*$/
-      syntax match hiLR3 /\m\(<<<\|>>>\)\d*/ containedin=ALL
-      syntax spell toplevel " highlight misspelings
-    else
-      syntax match hiLR /\m^.*\({{{\|}}}\).*$/
-      syntax match hiLR3 /\m\({{{\|}}}\)\d*/ containedin=ALL
-      if(a:ft == "help")
-        syntax spell toplevel " highlight misspelings
+    " if (a:ft == "text" || a:ft == "R" || a:ft == "python")
+    if  index(['text','python','R','sh'], a:ft) >= 0
+        syntax match hiLR "\m^\(\*\*\*\|###\|===\|---\)[ \t].*$" containedin=ALL
+      if  a:ft == "text"
+          syntax match hiLR3 /\m^\s*\zs\(([0-9*#=o+-]\+)\|[*#=o+-]\)\ze\s/ containedin=ALL
+      else
+          syntax match hiLR3 /\m\(^\|\s\)\zs([0-9*#=o+-]\+)\ze\s/ containedin=ALL
       endif
+    endif
+    if (a:ft == "tex" || a:ft == "lyx")
+        syntax match hiLR /\m^.*<<:.*$/
+        syntax match hiLR3 /\m\(<<:\|>>:\)\d*/ containedin=ALL
+        syntax match hiLR3 /\m^\s*\zs\(([0-9*#=o+-]\+)\|[*#=o+-]\)\ze\s/ containedin=ALL
+        syntax spell toplevel " highlight misspelings
+    else
+        syntax match hiLR /\m^.*\({{{\|}}}\).*$/
+        syntax match hiLR3 /\m\({{{\|}}}\)\d*/ containedin=ALL
+        if (a:ft == "help")
+            syntax spell toplevel " highlight misspelings
+        endif
     endif
 endfunction
 

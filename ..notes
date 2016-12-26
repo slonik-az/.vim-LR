@@ -1,5 +1,7 @@
-|> vim-LR notes
+#|> vim-LR notes
+################
 
+~/.vim-LR       - flat tree (single git repo, no submodules)
 
 #######################################
 ## vim:tw=105:ft=text:fdm=marker:fdl=0:

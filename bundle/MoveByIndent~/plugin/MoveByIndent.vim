@@ -57,8 +57,12 @@ function! MoveByIndent_move(fwd, change_lvl, skipblanks)
     endwhile
 
     if  l:tgt_ln != l:orig_ln
-        exe l:tgt_ln
-        exe "normal " column . "|"
+        " push to jumplist:
+        normal! m'
+        " move cursor to a new position
+        call cursor(l:tgt_ln, l:column)
+        " exe l:tgt_ln
+        " exe "normal! " column . "|"
     endif
 
 endfunction

@@ -1,0 +1,116 @@
+[submodule "bundle/CamelCaseMotion~"]
+	path = bundle/CamelCaseMotion~
+	url = ./bundle/CamelCaseMotion~
+    ignore = untracked
+[submodule "bundle/NrrwRgn~"]
+	path = bundle/NrrwRgn~
+	url = ./bundle/NrrwRgn~
+    ignore = untracked
+[submodule "bundle/base16-vim~"]
+	path = bundle/base16-vim~
+	url = ./bundle/base16-vim~
+    ignore = untracked
+[submodule "bundle/ctrlp.vim~"]
+	path = bundle/ctrlp.vim~
+	url = ./bundle/ctrlp.vim~
+    ignore = untracked
+[submodule "bundle/supertab~"]
+	path = bundle/supertab~
+	url = ./bundle/supertab~
+    ignore = untracked
+[submodule "bundle/tabular~"]
+	path = bundle/tabular~
+	url = ./bundle/tabular~
+    ignore = untracked
+[submodule "bundle/ultisnips~"]
+	path = bundle/ultisnips~
+	url = ./bundle/ultisnips~
+    ignore = untracked
+[submodule "bundle/vim-airline-themes~"]
+	path = bundle/vim-airline-themes~
+	url = ./bundle/vim-airline-themes~
+    ignore = untracked
+[submodule "bundle/vim-airline~"]
+	path = bundle/vim-airline~
+	url = ./bundle/vim-airline~
+    ignore = untracked
+[submodule "bundle/vim-cpp-enhanced-highlight~"]
+	path = bundle/vim-cpp-enhanced-highlight~
+	url = ./bundle/vim-cpp-enhanced-highlight~
+    ignore = untracked
+[submodule "bundle/vim-fugitive~"]
+	path = bundle/vim-fugitive~
+	url = ./bundle/vim-fugitive~
+    ignore = untracked
+[submodule "bundle/vim-indentwise~"]
+	path = bundle/vim-indentwise~
+	url = ./bundle/vim-indentwise~
+    ignore = untracked
+[submodule "bundle/vim-latex~"]
+	path = bundle/vim-latex~
+	url = ./bundle/vim-latex~
+    ignore = untracked
+[submodule "bundle/vim-repeat~"]
+	path = bundle/vim-repeat~
+	url = ./bundle/vim-repeat~
+    ignore = untracked
+[submodule "bundle/vim-sensible~"]
+	path = bundle/vim-sensible~
+	url = ./bundle/vim-sensible~
+    ignore = untracked
+[submodule "bundle/vim-sneak~"]
+	path = bundle/vim-sneak~
+	url = ./bundle/vim-sneak~
+    ignore = untracked
+[submodule "bundle/vim-snippets~"]
+	path = bundle/vim-snippets~
+	url = ./bundle/vim-snippets~
+    ignore = untracked
+[submodule "bundle/vim-surround~"]
+	path = bundle/vim-surround~
+	url = ./bundle/vim-surround~
+    ignore = untracked
+[submodule "bundle/vim-vinegar~"]
+	path = bundle/vim-vinegar~
+	url = ./bundle/vim-vinegar~
+    ignore = untracked
+[submodule "bundle/vim-vividchalk~"]
+	path = bundle/vim-vividchalk~
+	url = ./bundle/vim-vividchalk~
+    ignore = untracked
+[submodule "bundle/vimtex~"]
+	path = bundle/vimtex~
+	url = ./bundle/vimtex~
+    ignore = untracked
+[submodule "bundle/colorizer~"]
+	path = bundle/colorizer~
+	url = ./bundle/colorizer~
+    ignore = untracked
+[submodule "bundle/vim-unimpaired~"]
+	path = bundle/vim-unimpaired~
+	url = ./bundle/vim-unimpaired~
+    ignore = untracked
+[submodule "bundle/bufexplorer~"]
+	path = bundle/bufexplorer~
+	url = ./bundle/bufexplorer~
+    ignore = untracked
+[submodule "bundle/vim-HiLinkTrace~"]
+	path = bundle/vim-HiLinkTrace~
+	url = ./bundle/vim-HiLinkTrace~
+    ignore = untracked
+[submodule "bundle/vim-python-pep8-indent~"]
+	path = bundle/vim-python-pep8-indent~
+	url = ./bundle/vim-python-pep8-indent~
+    ignore = untracked
+[submodule "bundle/YouCompleteMe~"]
+	path = bundle/YouCompleteMe~
+	url = ./bundle/YouCompleteMe~
+    ignore = untracked
+[submodule "bundle/MoveByIndent~"]
+	path = bundle/MoveByIndent~
+	url = ./bundle/MoveByIndent~
+    ignore = untracked
+[submodule "bundle/lr-colors~"]
+	path = bundle/lr-colors~
+	url = ./bundle/lr-colors~
+    ignore = untracked

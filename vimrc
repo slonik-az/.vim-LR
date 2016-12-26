@@ -1,5 +1,10 @@
 """ <!LR> PRE-config  {{{
 
+" All autocmd in this file should go into vimrc group
+augroup vimrc
+  autocmd!
+augroup END
+
 """ turn off viminfo logging
 set viminfo=
 
@@ -28,7 +33,7 @@ set tw=104
 " }}}
 " ---------------------------------------------------------------------------- "
 
-" Settings {{{
+" Settings {{{1
 " Switch syntax highlighting on, when the terminal has colors
 syntax on
 
@@ -148,7 +153,7 @@ set showmatch
 """ Allow dash in keywords like "upper-case"
 set iskeyword+=-
 
-""" LaTeX modes
+""" LaTeX modes general settings
 " enable folding by section. In *.tex file modeline put vim:fdm=syntax:
 let g:tex_flavor='latex'
 let g:Tex_Flavor='latex'
@@ -162,15 +167,19 @@ let python_highlight_all = 1
 """ Grep settings
 set grepprg=grep\ -nH
 
-" }}}
+" }}}1
 
-" Plugins {{{1
-" Activate Pathogen
+" Activate Pathogen     {{{1
+
 execute pathogen#infect()
 syntax on
 filetype plugin indent on
 
-"""" Theme
+" }}}1
+
+" Plugins {{{1
+    """ Theme for screen and print      {{{
+
 " set background=light
 " colorscheme Tomorrow-Night
 " set background=dark
@@ -178,14 +187,28 @@ filetype plugin indent on
 "" My light colorscheme
 colorscheme lr-light
 
-""" netrw:
+""" ColorScheme and options for printing
+set printoptions=number:y,paper:letter,left:5mm,right:5mm,top:11mm,bottom:11mm
+
+""" Convert to PostScript.
+" Usage: ':Hardcopy > o.ps'
+command! -nargs=* Hardcopy call s:DoMyPrint('<args>')
+function s:DoMyPrint(args)
+  let colorsave=g:colors_name
+  color lr-print
+  exec 'hardcopy '.a:args
+  exec 'color '.colorsave
+endfunction
+
+    " }}}
+    """ netrw:      {{{
 " Set built-in file system explorer to use layout similar to the NERDTree plugin
 " let g:netrw_liststyle=3
 let g:netrw_liststyle=1
 " Kill (wipe) gratuitous netrw buffers:
 " autocmd FileType netrw setl bufhidden=wipe
-
-""" CtrlP
+    " }}}
+    """ CtrlP       {{{
 map <leader>d :CtrlPDir
 map <leader>y :CtrlPBuffer<cr>
 let g:ctrlp_show_hidden=1
@@ -196,7 +219,8 @@ let g:ctrlp_max_height=30
 let g:ctrlp_arg_map = 1
 
 " CtrlP -> files matched are ignored when expanding wildcards
-set wildignore+=*/.git/*,*/.hg/*,*/.svn/*.,*/.DS_Store
+" .git in wildignore breaks fugitive badly. Disabling...
+" set wildignore+=*/.git/*,*/.hg/*,*/.svn/*.,*/.DS_Store
 
 " CtrlP -> use Ag for searching instead of VimScript
 " (might not work with ctrlp_show_hidden and ctrlp_custom_ignore)
@@ -207,8 +231,8 @@ let g:ctrlp_custom_ignore = '\v[\/]((node_modules)|\.(git|svn|grunt|sass-cache))
 
 " Ack (uses Ag behind the scenes)
 let g:ackprg = 'ag --nogroup --nocolor --column'
-
-""" Airline (status line)
+    " }}}
+    """ Airline (status line)   {{{
 let g:airline_theme='darkLR'
 if has("gui_running")
    let g:airline_powerline_fonts = 1
@@ -218,8 +242,12 @@ endif
 " enable/disable showing a summary of changed hunks under source control.
 let g:airline#extensions#hunks#enabled = 0
   let g:airline#extensions#whitespace#checks = []
-
-" Gist authorisation settings
+" Do not show git branch
+let g:airline#extensions#branch#enabled = 0
+" Display full path (or the its longest tail that fits) instead of just a filename (path tail):
+let g:airline_section_c = '%<%F%m %#__accent_red#%{airline#util#wrap(airline#parts#readonly(),0)}%#__restore__#'
+    " }}}
+    " Gist authorisation settings   {{{
 let g:github_user = $GITHUB_USER
 let g:github_token = $GITHUB_TOKEN
 let g:gist_detect_filetype = 1
@@ -237,21 +265,21 @@ let g:gist_open_browser_after_post = 1
 " let g:gitgutter_eager = 0
 " let g:gitgutter_sign_column_always = 1
 " highlight clear SignColumn
-
-""" NERDTree
+    " }}}
+    """ NERDTree        {{{
 let NERDTreeShowHidden=1
 let NERDTreeSortHiddenFirst=1
 let NERDTreeShowLineNumbers=1
 " Searching the file system
 map <leader>' :NERDTreeToggle<cr>
-
-""" Tabularize
+    " }}}
+    """ Tabularize      {{{
 map <Leader>e :Tabularize /=<cr>
 map <Leader>c :Tabularize /:<cr>
 map <Leader>es :Tabularize /=\zs<cr>
 map <Leader>cs :Tabularize /:\zs<cr>
-
-""" CamelCaseMotion (for dealing with programming code)
+    " }}}
+    """ CamelCaseMotion (for dealing with programming code)     {{{
 map <silent> <M-w> <Plug>CamelCaseMotion_w
 map <silent> <M-e> <Plug>CamelCaseMotion_e
 map <silent> <M-b> <Plug>CamelCaseMotion_b
@@ -264,8 +292,8 @@ sunmap <M-b>
 " sunmap w
 " sunmap b
 " sunmap e
-
-""" Indentwise settings     {{{
+    " }}}
+    """ Indentwise settings     {{{
 " Indentwise plugin is half-broken. I am using indent-motion plugin to fill the gaps.
 " <C-S-Up>/<C-S-Down> move cursor to Begin/End of indent-delimited block, see indent-motion plugin.
 " map <C-M-S-Up> <Plug>(IndentWisePreviousEqualIndent)
@@ -282,28 +310,31 @@ sunmap <M-b>
 " map <C-S-Down> <Plug>IndentWiseBlockScopeBoundaryEnd
 " sunmap <C-S-Down>
     " }}}
-
-""" vim-latex AKA latex-suite
+    """ vim-latex AKA latex-suite       {{{
 " Disable folding in latex-suite plugin
 let g:Tex_Folding=0
 " let g:Tex_FoldedEnvironments=''
 let g:Tex_ViewRule_pdf='pdf'
 let g:Tex_ViewRule_pdf='Skim'
 " Use <Leader>ls to forward search. Jump from *.tex ==> *.pdf.
-
-""" Colorizer plugin
-" Disable on startup because it is sloe.
+" Disable latex-suite insert mode macros from expanding:
+let g:Tex_EnvironmentMaps = 0
+let g:Tex_FontMaps        = 0
+let g:Tex_SectionMaps     = 0
+    " }}}
+    """ Colorizer plugin    {{{
+" Disable on startup because it is slow.
 " Use <leader>tc  to toggle on/off manually.
 let g:colorizer_startup = 0
-
-""" BufExplorer
+    " }}}
+    """ BufExplorer     {{{
 let g:bufExplorerShowNoName=1        " Show [No Name] buffers.
 let g:bufExplorerShowRelativePath=1  " Show relative paths.
 let g:bufExplorerShowUnlisted=1      " Show unlisted buffers.
 let g:bufExplorerSortBy='mru'        " Sort by most recently used.
 " let g:bufExplorerSortBy='name'       " Sort by the buffer's name.
-
-""" YouCompleteMe (YCM) setting     {{{
+    " }}}
+    """ YouCompleteMe (YCM) setting     {{{
 if globpath(&runtimepath, 'plugin/youcompleteme.vim', 1) !=# ''
   " Only if YCM is in the load path
   " echom "--- LR: YCM is in the load path!!"
@@ -330,7 +361,6 @@ if globpath(&runtimepath, 'plugin/youcompleteme.vim', 1) !=# ''
   let g:ycm_warning_symbol= '?>'
 endif
     " }}}
-
 " }}}1
 
 " Commands, Functions {{{
@@ -343,14 +373,18 @@ function! s:LR_move_cursor(new_pos, isVisual)
   call cursor(0, a:new_pos)
 endfunction
 
-""" Set window-local pwd to one of the current file
-autocmd BufEnter * silent! lcd %:p:h
-
-" jump to last cursor
-autocmd BufReadPost *
-  \ if line("'\"") > 0 && line("'\"") <= line("$") |
-  \   exe "normal g`\"" |
-  \ endif
+augroup vimrc
+  " Set window-local pwd to one of the current file
+    autocmd BufEnter * silent! lcd %:p:h
+    
+  " When editing a file, always jump to the last known cursor position.
+  " Don't do it when the position is invalid or when inside an event handler
+  " (happens when dropping a file on gvim).
+  autocmd BufReadPost *
+    \ if line("'\"") >= 1 && line("'\"") <= line("$") |
+    \   exe "normal! g`\"" |
+    \ endif
+augroup END
 
 fun! StripTrailingWhitespace()
   " don't strip on these filetypes
@@ -361,15 +395,19 @@ fun! StripTrailingWhitespace()
 endfun
 " autocmd BufWritePre * call StripTrailingWhitespace()
 
-" file formats
-autocmd Filetype gitcommit setlocal spell textwidth=88
-autocmd Filetype markdown setlocal wrap linebreak nolist textwidth=0 wrapmargin=0 " http://vim.wikia.com/wiki/Word_wrap_without_line_breaks
-autocmd FileType sh,cucumber,ruby,yaml,zsh,vim setlocal shiftwidth=2 tabstop=4 softtabstop=4 expandtab
+augroup vimrc
+  " file formats
+  autocmd Filetype gitcommit setlocal spell textwidth=88
+  " http://vim.wikia.com/wiki/Word_wrap_without_line_breaks :
+  autocmd Filetype markdown setlocal wrap linebreak nolist textwidth=0 wrapmargin=0
+  autocmd FileType sh,ruby,yaml,zsh,vim setlocal shiftwidth=2 tabstop=4 softtabstop=4 expandtab
+  autocmd FileType tex,lyx setlocal foldmarker=<<:,>>:
 
-" specify syntax highlighting for specific files
-autocmd BufRead,BufNewFile *.note,*.notes setfiletype text
-autocmd Bufread,BufNewFile *.spv set filetype=php
-autocmd Bufread,BufNewFile *.md set filetype=markdown " Vim interprets .md as 'modula2' otherwise, see :set filetype?
+  " specify syntax highlighting for specific files
+  autocmd BufRead,BufNewFile *.note,*.notes setfiletype text
+  autocmd Bufread,BufNewFile *.spv set filetype=php
+  autocmd Bufread,BufNewFile *.md set filetype=markdown " Vim interprets .md as 'modula2' otherwise, see :set filetype?
+augroup END
 
 " Create a 'scratch buffer' which is a temporary buffer Vim wont ask to save
 " http://vim.wikia.com/wiki/Display_output_of_shell_commands_in_new_window
@@ -402,10 +440,12 @@ set fdm=indent fdl=111
 
 " Rainbow parenthesis always on!
 if exists(':RainbowParenthesesToggle')
-  autocmd VimEnter * RainbowParenthesesToggle
-  autocmd Syntax * RainbowParenthesesLoadRound
-  autocmd Syntax * RainbowParenthesesLoadSquare
-  autocmd Syntax * RainbowParenthesesLoadBraces
+  augroup vimrc
+    autocmd VimEnter * RainbowParenthesesToggle
+    autocmd Syntax * RainbowParenthesesLoadRound
+    autocmd Syntax * RainbowParenthesesLoadSquare
+    autocmd Syntax * RainbowParenthesesLoadBraces
+  augroup END
 endif
 
 """ List all marker folds in a 'Quickfix List' and jump into it
@@ -418,8 +458,7 @@ nmap <Leader>H :vimgrep /\m\(^[ /\|%*#=~+-]*\|>.*$\)\\|{{{\\|<<</ %<CR>:copen<CR
 
 """ QuickFix window does not resize with <C-W>= or <C-W>0
 " because of winfixheight setting. Fix it:
-augroup LR_quickfix
-  autocmd!
+augroup vimrc
   autocmd FileType qf setlocal nowinfixheight
 augroup END
 
@@ -493,28 +532,6 @@ noremap <C-W>= <C-W>+
 " Handling horizontal Vim windows doesn't appear to be possible.
 " Attempting to map <C-W> < and > didn't work
 " Same with mapping <C-W>|
-
-" Running Tests...
-" See also <https://gist.github.com/8114940>
-
-" Run currently open RSpec test file
-map <Leader>rf :w<cr>:!rspec % --format nested<cr>
-
-" Run current RSpec test
-" RSpec is clever enough to work out the test to run if the cursor is on any line within the test
-map <Leader>rl :w<cr>:exe "!rspec %" . ":" . line(".")<cr>
-
-" Run all RSpec tests
-map <Leader>rt :w<cr>:!rspec --format nested<cr>
-
-" Run currently open cucumber feature file
-map <Leader>cf :w<cr>:!cucumber %<cr>
-
-" Run current cucumber scenario
-map <Leader>cl :w<cr>:exe "!cucumber %" . ":" . line(".")<cr>
-
-" Run all cucumber feature files
-map <Leader>ct :w<cr>:!cucumber<cr>
 
 " Tmux style window selection
 map <Leader>ws :ChooseWin<cr>

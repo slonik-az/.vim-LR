@@ -32,9 +32,11 @@ augroup END
 " set guifont=Literation\ Mono\ Powerline:h17
 " set guifont=DejaVu\ Sans\ Mono\ for\ Powerline:h16
 " set guifont=Source\ Code\ Pro\ Semibold:h16
-set guifont=DejaVu\ Sans\ Mono\ Bold\ for\ Powerline:h16
+set guifont=DejaVu\ Sans\ Mono\ Bold\ for\ Powerline:h15
 " set guifont=DejaVu\ Sans\ Mono\ for\ Powerline:h16
 " set guifont=Menlo\ Regular:h16
+
+set printfont=courier:h9
 
 " }}}
 
