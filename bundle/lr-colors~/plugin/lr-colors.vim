@@ -34,8 +34,8 @@ function! LR_Syntax_hi(ft)
     syntax match Title "\m^\(##\|//\|/\*\|--\)*[ *#%|=~+-]*|>.*$" containedin=ALL
     syntax match hiLR4 "\m!\(IMPORTANT\|TODO\|NOTE\)!" containedin=ALL
     " if (a:ft == "text" || a:ft == "R" || a:ft == "python")
-    if  index(['text','python','R','sh'], a:ft) >= 0
-        syntax match hiLR "\m^\(\*\*\*\|###\|===\|---\)[ \t].*$" containedin=ALL
+    if  index(['text','tex','python','R','sh'], a:ft) >= 0
+        syntax match hiLR "\m^\(\*\*\*\|###\|%%%\|===\|---\|+++\)[ \t].*$" containedin=ALL
       if  a:ft == "text"
           syntax match hiLR3 /\m^\s*\zs\(([0-9*#=o+-]\+)\|[*#=o+-]\)\ze\s/ containedin=ALL
       else

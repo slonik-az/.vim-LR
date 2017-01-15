@@ -53,5 +53,14 @@
 
 *** YouCompleteMe~/: Comprehensive AutoComplete engine
 
+*** vim-easy-align~/:
+  * Seems to be powerful & easy to use tool to align columns, work w/ tabular data
+  * https://github.com/junegunn/vim-easy-align
+
+*** vis~/: Editing Visual Block
+  * Easy (and powerfull) editing (or searching) limited to a Visual Block.
+  * Please, manually update and inspect the latest unofficial release 
+  * from http://www.drchip.org/astronaut/vim/index.html#VIS
+
 ##################################################
 ## vim:tw=105:ft=text:fdm=indent:fdl=0:sw=2:fml=1:
