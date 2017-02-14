@@ -13,6 +13,9 @@
 *** NrrwRgn~/: Narrow Region to a temporary buffer
   * Inspired by  Emacs's narrowing behavior
 
+*** Nvim-R~/: Vim/Nvim plugin for R-lang.
+  * https://github.com/jalvesaq/Nvim-R
+
 *** vim-dirvish~/: (justinmk) Simple Directory browser
   * Replaces netrw, NERDTree.
   * https://github.com/justinmk/vim-dirvish

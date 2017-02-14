@@ -361,6 +361,22 @@ if globpath(&runtimepath, 'plugin/youcompleteme.vim', 1) !=# ''
   let g:ycm_warning_symbol= '?>'
 endif
     " }}}
+    " EasyAlign settings    {{{
+
+" Start interactive EasyAlign in visual mode (e.g. vip<Enter>)
+vmap <Enter> <Plug>(EasyAlign)
+
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+" nmap ga <Plug>(EasyAlign)
+
+    " }}}
+    " Nvim-R (R-lang) settings  {{{
+
+"" If you are on Mac OS X and want to use the R.app graphical application:
+let R_in_buffer   = 0
+"let R_applescript = 1
+
+    " }}}
 " }}}1
 
 " Commands, Functions {{{

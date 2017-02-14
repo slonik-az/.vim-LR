@@ -37,15 +37,15 @@ function! LR_Syntax_hi(ft)
     if  index(['text','tex','python','R','sh'], a:ft) >= 0
         syntax match hiLR "\m^\(\*\*\*\|###\|%%%\|===\|---\|+++\)[ \t].*$" containedin=ALL
       if  a:ft == "text"
-          syntax match hiLR3 /\m^\s*\zs\(([0-9*#=o+-]\+)\|[*#=o+-]\)\ze\s/ containedin=ALL
+          syntax match hiLR3 /\m^\s*\zs\(([0-9*#=.o+-]\+)\|[*#=o+-]\)\ze\s/ containedin=ALL
       else
-          syntax match hiLR3 /\m\(^\|\s\)\zs([0-9*#=o+-]\+)\ze\s/ containedin=ALL
+          syntax match hiLR3 /\m\(^\|\s\)\zs([0-9*#=.o+-]\+)\ze\s/ containedin=ALL
       endif
     endif
     if (a:ft == "tex" || a:ft == "lyx")
         syntax match hiLR /\m^.*<<:.*$/
         syntax match hiLR3 /\m\(<<:\|>>:\)\d*/ containedin=ALL
-        syntax match hiLR3 /\m^\s*\zs\(([0-9*#=o+-]\+)\|[*#=o+-]\)\ze\s/ containedin=ALL
+        syntax match hiLR3 /\m^\s*\zs\(([0-9*#=.o+-]\+)\|[*#=o+-]\)\ze\s/ containedin=ALL
         syntax spell toplevel " highlight misspelings
     else
         syntax match hiLR /\m^.*\({{{\|}}}\).*$/
