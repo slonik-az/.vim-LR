@@ -160,21 +160,25 @@ let g:Tex_Flavor='latex'
 let g:tex_fold_enabled=1
 " let g:tex_nospell=0
 
-""" Python settings
+""" Python settings     {{{
 " Maximum highlighting. For details ':h python.vim'.
 let python_highlight_all = 1
+let g:jedi#force_py_version =3 " for details :h jedi-vim
+""" Set python3 paths to point to python3.6:
+set pythonthreehome=/opt/anaconda3
+set pythonthreedll =/opt/anaconda3/lib/libpython3.6m.dylib
+" }}}
 
 """ Grep settings
 set grepprg=grep\ -nH
 
 " }}}1
 
-" Activate Pathogen     {{{1
-
-execute pathogen#infect()
-syntax on
-filetype plugin indent on
-
+""" Activate Pathogen     {{{1
+""" Pathogen lives in autoload/pathogen.vim
+" execute pathogen#infect()
+" syntax on
+" filetype plugin indent on
 " }}}1
 
 " Plugins {{{1
@@ -334,33 +338,6 @@ let g:bufExplorerShowUnlisted=1      " Show unlisted buffers.
 let g:bufExplorerSortBy='mru'        " Sort by most recently used.
 " let g:bufExplorerSortBy='name'       " Sort by the buffer's name.
     " }}}
-    """ YouCompleteMe (YCM) setting     {{{
-if globpath(&runtimepath, 'plugin/youcompleteme.vim', 1) !=# ''
-  " Only if YCM is in the load path
-  " echom "--- LR: YCM is in the load path!!"
-  " Show documentation in a preview-window
-  noremap <D-g>D :YcmCompleter GetDoc<CR>
-  inoremap <D-g>D <C-o>:YcmCompleter GetDoc<CR>
-  " GoTo declaration
-  noremap <D-g>d :YcmCompleter GoToDeclaration<CR>
-  inoremap <D-g>d <C-o>:YcmCompleter GoToDeclaration<CR>
-  " GoTo definition
-  noremap <D-g><D-d> :YcmCompleter GoToDefinition<CR>
-  inoremap <D-g><D-d> <C-o>:YcmCompleter GoToDefinition<CR>
-  " Limit YCM to only these filetypes
-  let g:ycm_filetype_whitelist= {'cpp':1, 'c':1, 'python':1, 'lua':1}
-
-  " Do not waste <C-Space> for this.
-  let g:ycm_key_invoke_completion = '<A-Space>'
-
-  " C/C++ settings
-  " Fallback ycm_extra_config
-  let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
-  " Error/Warning gutter symbols
-  let g:ycm_error_symbol  = '!>'
-  let g:ycm_warning_symbol= '?>'
-endif
-    " }}}
     " EasyAlign settings    {{{
 
 " Start interactive EasyAlign in visual mode (e.g. vip<Enter>)
@@ -375,8 +352,19 @@ vmap <Enter> <Plug>(EasyAlign)
 "" If you are on Mac OS X and want to use the R.app graphical application:
 let R_in_buffer   = 0
 "let R_applescript = 1
+" Alt-minus inserts <- assignment like in RStudio
+let R_assign_map = "<M-->"
+
 
     " }}}
+"" vim-markdown-folding  {{{
+
+"" Nested style of folds.
+let g:markdown_fold_style = 'nested'
+" Exec cmd :FoldToggle to toggle between 'nested' and 'stacked' styles.
+"
+
+" }}}
 " }}}1
 
 " Commands, Functions {{{
@@ -495,7 +483,7 @@ augroup END
 " to map something in just VISUAL mode use :vmap or :vnoremap
 
 """ Cursor movements, scrolling
-noremap <C-a> <C-u>
+noremap <C-s> <C-u>
 noremap <C-Down> <C-d>
 noremap <C-Up> <C-u>
 
@@ -537,9 +525,11 @@ map <leader>. :Sexplore<cr>
 :nnoremap ]B :blast<CR>
 :nnoremap <leader>b<Space> :ls!<CR>
 :nnoremap <leader>bn :ls!<CR>:buffer<Space>
-
 " Buffers (runs the delete buffer command on all open buffers)
 map <leader>yd :bufdo bd<cr>
+
+""" open ~/vim.modeline in view-only mode
+:nnoremap <leader>ml :view ~/vim.modeline<CR>
 
 " Make handling vertical/linear Vim windows easier
 noremap <C-W>0 <C-W>=
@@ -551,6 +541,13 @@ noremap <C-W>= <C-W>+
 
 " Tmux style window selection
 map <Leader>ws :ChooseWin<cr>
+
+" Remap ctrl-a and ctrl-x to ctrl-alt-a and ctrl-alt-x
+noremap <C-M-a> <C-a>
+noremap <C-M-x> <C-x>
+noremap <C-a> <Nop>
+noremap <C-x> <Nop>
+
 " }}}
 
 """ <!LR> POST-config  {{{
@@ -565,4 +562,4 @@ set viminfo=
 " this file and all the plugins. Put stuff there for final override.
 " See :help 'runtimepath'
 
-" vim:fdm=marker:fdl=0:
+" vim:ft=vim:fdm=marker:fdl=0:ts=2:sts=2:sw=2:
