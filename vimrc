@@ -187,9 +187,9 @@ set grepprg=grep\ -nH
 " set background=light
 " colorscheme Tomorrow-Night
 " set background=dark
-" colorscheme koehler
+colorscheme koehler
 "" My light colorscheme
-colorscheme lr-light
+" colorscheme lr-light
 
 """ ColorScheme and options for printing
 set printoptions=number:y,paper:letter,left:5mm,right:5mm,top:11mm,bottom:11mm
@@ -237,8 +237,10 @@ let g:ctrlp_custom_ignore = '\v[\/]((node_modules)|\.(git|svn|grunt|sass-cache))
 let g:ackprg = 'ag --nogroup --nocolor --column'
     " }}}
     """ Airline (status line)   {{{
-let g:airline_theme='darkLR'
-if has("gui_running")
+" let g:airline_theme='darkLR'
+" let g:airline_theme='xtermlight'  " good on dark backgroung
+let g:airline_theme='light'  " good on dark backgroung
+if has("gui_running") || 1
    let g:airline_powerline_fonts = 1
 else
    let g:airline_powerline_fonts = 0
