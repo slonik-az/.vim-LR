@@ -165,8 +165,8 @@ let g:tex_fold_enabled=1
 let python_highlight_all = 1
 let g:jedi#force_py_version =3 " for details :h jedi-vim
 """ Set python3 paths to point to python3.6:
-set pythonthreehome=/opt/anaconda3
-set pythonthreedll =/opt/anaconda3/lib/libpython3.6m.dylib
+" set pythonthreehome=/opt/anaconda3
+" set pythonthreedll =/opt/anaconda3/lib/libpython3.6m.dylib
 " }}}
 
 """ Grep settings
@@ -187,7 +187,8 @@ set grepprg=grep\ -nH
 " set background=light
 " colorscheme Tomorrow-Night
 " set background=dark
-colorscheme koehler
+colorscheme vividchalk
+" colorscheme koehler
 "" My light colorscheme
 " colorscheme lr-light
 
