@@ -533,6 +533,8 @@ map <leader>yd :bufdo bd<cr>
 
 """ open ~/vim.modeline in view-only mode
 :nnoremap <leader>ml :view ~/vim.modeline<CR>
+""" Toggle spellcheck
+:nnoremap <leader>sp :setlocal spell! spell?<CR>
 
 " Make handling vertical/linear Vim windows easier
 noremap <C-W>0 <C-W>=
