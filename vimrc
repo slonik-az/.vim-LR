@@ -186,8 +186,9 @@ set grepprg=grep\ -nH
 
 " set background=light
 " colorscheme Tomorrow-Night
-" set background=dark
-colorscheme vividchalk
+set background=dark
+" colorscheme vividchalk
+colorscheme vividchalk-lr
 " colorscheme koehler
 "" My light colorscheme
 " colorscheme lr-light
@@ -487,6 +488,7 @@ augroup END
 
 """ Cursor movements, scrolling
 noremap <C-s> <C-u>
+noremap <C-Q> <C-Y>
 noremap <C-Down> <C-d>
 noremap <C-Up> <C-u>
 
