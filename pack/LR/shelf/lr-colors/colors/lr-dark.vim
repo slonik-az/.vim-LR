@@ -33,13 +33,13 @@ hi VisualNOS term=NONE ctermfg=White ctermbg=Black gui=bold guifg=White guibg=Bl
 hi DiffText term=reverse cterm=bold ctermbg=Yellow gui=bold guibg=Yellow
 
 """ Cursor and CursorLine settings
-" hi Cursor  gui=bold guibg=#ff00ff guifg=#00ff00 cterm=bold ctermbg=10 ctermfg=16
+hi Cursor  gui=bold guibg=#ff00ff guifg=#00ff00 cterm=bold ctermbg=10 ctermfg=16
 " " hi Cursor gui=bold guifg=#ffff80 guibg=#0000f0
 " hi lCursor gui=bold guibg=#00ffff guifg=#ff0000
-" hi CursorLine cterm=underline,bold gui=underline,bold
+hi CursorLine cterm=standout,bold gui=standout,bold
 " hi CursorLine cterm=bold ctermbg=244 gui=bold guibg=grey50
 " hi CursorLine term=underline cterm=underline ctermbg=239 gui=bold guibg=grey80
-" hi CursorLineNr gui=bold guifg=#000088 guibg=#f08000 cterm=bold ctermfg=16 ctermbg=202
+hi CursorLineNr gui=bold guifg=#000088 guibg=#f08000 cterm=bold ctermfg=16 ctermbg=250
 " hi CursorColumn cterm=bold ctermbg=239 gui=bold guibg=grey30
 " hi CursorColumn cterm=reverse,bold gui=reverse,bold
 " hi CursorColumn cterm=reverse ctermbg=grey gui=bold guibg=grey50
@@ -75,12 +75,22 @@ hi Ignore ctermfg=Grey guifg=grey50
 
 hi ToDo gui=bold guifg=#00ffff guibg=#ff0000
 
+""" Spelling groups
+hi clear SpellBad
+hi SpellBad cterm=underline,bold
+hi clear SpellCap
+hi SpellCap cterm=underline,bold
+hi clear SpellLocal
+hi SpellLocal cterm=underline,bold
+hi clear SpellRare
+hi SpellRare cterm=underline,bold
+
 """ Syntax highlight for open fold headers
 " hi hiLR  gui=bold  guifg=black  guibg=LightRed
 " hi hiLR   gui=bold guifg=Yellow guibg=DarkBlue
 hi hiLR  gui=bold guibg=#ffff00 guifg=#000000 cterm=bold ctermfg=16 ctermbg=226
-hi hiLR3 gui=bold guibg=#ffff00 guifg=#e00000 cterm=bold ctermfg=9  ctermbg=226
-hi hiLR4 gui=bold guifg=#ff0000 guibg=#00ffff
+hi hiLR3 gui=bold guibg=#ffff00 guifg=#e00000 cterm=bold ctermfg=16  ctermbg=226
+hi hiLR4 gui=bold guifg=#ff0000 guibg=#00ffff cterm=bold ctermfg=9  ctermbg=14
 
 " #########
 " vim: sw=2
