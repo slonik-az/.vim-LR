@@ -11,7 +11,7 @@ let g:loaded_lr_colors = 1
 
 """ Highlight the line where cursor is (aka current line)
 set cursorline
-set cursorcolumn
+" set cursorcolumn
 
 " s:fix_CursorLine is called by autocmd.
 function! s:fix_CursorLine(diff)
