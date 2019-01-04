@@ -128,8 +128,8 @@ set splitbelow
 set splitright
 
 " Highlight the current line
-set cursorline
-hi CursorLine   cterm=NONE ctermbg=darkred ctermfg=white
+" set cursorline
+" hi CursorLine   cterm=NONE ctermbg=darkred ctermfg=white
 " hi CursorColumn cterm=NONE ctermbg=darkred ctermfg=white
 
 " Ensure Vim doesn't beep at you every time you make a mistype
@@ -188,10 +188,10 @@ set grepprg=grep\ -nH
 " colorscheme Tomorrow-Night
 set background=dark
 " colorscheme vividchalk
-colorscheme vividchalk-lr
 " colorscheme koehler
 "" My light colorscheme
-" colorscheme lr-light
+colorscheme lr-dark
+" colorscheme vividchalk-lr
 
 """ ColorScheme and options for printing
 set printoptions=number:y,paper:letter,left:5mm,right:5mm,top:11mm,bottom:11mm
