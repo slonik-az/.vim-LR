@@ -50,7 +50,7 @@ function! LR_Syntax_hi(ft)
         syntax spell toplevel " highlight misspelings
     else
         syntax match hiLR /\m^.*\({{{\|}}}\).*$/ containedin=ALL
-        syntax match hiLR3 /\m\({{{\|}}}\)\d*/ containedin=ALL
+        syntax match hiLR /\m\({{{\|}}}\)\d*/ containedin=ALL
         if (a:ft == "help")
             syntax spell toplevel " highlight misspelings
         endif

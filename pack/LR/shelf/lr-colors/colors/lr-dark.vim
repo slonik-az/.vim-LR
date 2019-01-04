@@ -27,8 +27,9 @@ hi ModeMsg term=bold cterm=bold gui=bold
 " hi StatusLine term=reverse,bold cterm=reverse,bold gui=reverse,bold
 " hi StatusLineNC term=reverse cterm=reverse gui=reverse
 hi VertSplit term=reverse cterm=reverse gui=reverse
-hi Visual term=NONE ctermfg=White ctermbg=Black gui=bold guibg=#ff0000 guifg=#00ffff
-hi VisualNOS term=NONE ctermfg=White ctermbg=Black gui=bold guifg=White guibg=Black
+hi Visual    cterm=bold ctermfg=16 ctermbg=123 gui=bold guibg=#87ffff guifg=#000000
+hi VisualNOS cterm=bold ctermfg=16 ctermbg=123 gui=bold guibg=#87ffff guifg=#000000
+" hi VisualNOS term=NONE ctermfg=White ctermbg=Black gui=bold guifg=White guibg=Black
 " hi VisualNOS term=underline,bold cterm=underline,bold gui=underline,bold
 hi DiffText term=reverse cterm=bold ctermbg=Yellow gui=bold guibg=Yellow
 
@@ -52,7 +53,7 @@ hi Question term=standout ctermfg=DarkGreen gui=bold guifg=SeaGreen
 hi Search term=bold ctermbg=Red ctermfg=Black gui=bold guibg=#ff0000 guifg=#000000
 hi IncSearch term=bold ctermbg=Red ctermfg=Black gui=bold guibg=#ff0000 guifg=#000000
 hi SpecialKey term=bold ctermfg=DarkBlue gui=bold guifg=Blue
-hi Title cterm=bold ctermfg=15 ctermbg=12 gui=bold guifg=#ffffff guibg=#0000ff
+hi Title cterm=bold ctermfg=16 ctermbg=226 gui=bold guifg=#ffffff guibg=#0000ff
 hi WarningMsg term=standout ctermfg=DarkRed gui=bold guifg=Red
 hi WildMenu term=standout ctermbg=Yellow ctermfg=Black gui=bold guibg=Yellow guifg=Black
 " hi Folded term=standout ctermbg=Grey ctermfg=DarkBlue guibg=LightGrey guifg=DarkBlue
@@ -88,8 +89,8 @@ hi SpellRare cterm=underline,bold
 """ Syntax highlight for open fold headers
 " hi hiLR  gui=bold  guifg=black  guibg=LightRed
 " hi hiLR   gui=bold guifg=Yellow guibg=DarkBlue
-hi hiLR  gui=bold guibg=#ffff00 guifg=#000000 cterm=bold ctermfg=16 ctermbg=226
-hi hiLR3 gui=bold guibg=#ffff00 guifg=#e00000 cterm=bold ctermfg=16  ctermbg=226
+hi hiLR  gui=bold guifg=#000000 guibg=#0000ff cterm=bold ctermfg=231 ctermbg=20
+hi hiLR3 gui=bold guifg=#00ffff cterm=bold ctermfg=51
 hi hiLR4 gui=bold guifg=#ff0000 guibg=#00ffff cterm=bold ctermfg=9  ctermbg=14
 
 " #########
