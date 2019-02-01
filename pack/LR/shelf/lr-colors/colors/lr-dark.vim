@@ -50,8 +50,8 @@ hi LineNr term=underline gui=bold guibg=#004400 guifg=White
 hi MoreMsg term=bold ctermfg=DarkGreen gui=bold guifg=SeaGreen
 hi NonText term=bold ctermfg=Blue gui=bold guifg=Blue guibg=grey80
 hi Question term=standout ctermfg=DarkGreen gui=bold guifg=SeaGreen
-hi Search term=bold ctermbg=Red ctermfg=Black gui=bold guibg=#ff0000 guifg=#000000
-hi IncSearch term=bold ctermbg=Red ctermfg=Black gui=bold guibg=#ff0000 guifg=#000000
+hi Search term=bold ctermbg=Red ctermfg=16 gui=bold guibg=#ff0000 guifg=#000000
+hi IncSearch term=bold ctermbg=Red ctermfg=16 gui=bold guibg=#ff0000 guifg=#000000
 hi SpecialKey term=bold ctermfg=DarkBlue gui=bold guifg=Blue
 hi Title cterm=bold ctermfg=16 ctermbg=226 gui=bold guifg=#ffffff guibg=#0000ff
 hi WarningMsg term=standout ctermfg=DarkRed gui=bold guifg=Red
