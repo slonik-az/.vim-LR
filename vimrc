@@ -513,6 +513,10 @@ vnoremap <silent> <D-/> :<C-u>call <SID>LR_move_cursor( virtcol('$')*3/4, 1)<CR>
 :nnoremap <M-2> :nohlsearch<cr>
 :inoremap <M-2> <C-o>:nohlsearch<cr>
 
+""" Limit search to visual selection [see vim.notes]
+:vnoremap <leader>/ <Esc>/\%V
+:vnoremap <M-/> <Esc>/\%V
+
 """ Simplier alias for g% navigation. 5 is the same key as % w/o shift
 map g5 g%
 
