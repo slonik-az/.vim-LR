@@ -46,6 +46,12 @@ TeX/LaTeX   {{{1
 %% vim:ft=tex:spell:fdm=marker:fdl=0:tw=105:ts=2:sts=2:sw=2:
 
 python      {{{1
+####################################################################
+## vim:tw=105:ft=python:spell:fdm=indent:fdl=0:fdi=:sts=4:ts=4:sw=4:
+
+####################################################################
+## vim:tw=105:ft=python:spell:fdm=indent:fdl=0:fdi=:sts=4:ts=4:sw=2:
+
 #########################################################
 ## vim:tw=105:ft=python:spell:fdm=indent:fdl=0:fdi=:sw=4:
 
@@ -79,6 +85,9 @@ R   {{{1
 Shell   {{{1
 #####################################################
 ## vim:tw=105:ft=sh:spell:fdm=indent:fdl=0:fdi=:sw=4:
+
+#####################################################
+## vim:tw=105:ft=sh:spell:fdm=marker:fdl=0:fdi=:sw=4:
 
 ################################################
 ## vim:tw=105:ft=sh:spell:fdm=indent:fdl=0:sw=4:

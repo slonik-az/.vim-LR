@@ -3,6 +3,26 @@
 Changelog
 ---------
 
+0.3.4 (2018-02-13)
++++++++++++++++++++
+
+- Fix an f-string tokenizer error
+
+0.3.3 (2018-02-06)
++++++++++++++++++++
+
+- Fix async errors in the diff parser
+- A fix in iter_errors
+- This is a very small bugfix release
+
+0.3.2 (2018-01-24)
++++++++++++++++++++
+
+- 20+ bugfixes in the diff parser and 3 in the tokenizer
+- A fuzzer for the diff parser, to give confidence that the diff parser is in a
+  good shape.
+- Some bugfixes for f-string
+
 0.3.1 (2018-07-09)
 +++++++++++++++++++
 
