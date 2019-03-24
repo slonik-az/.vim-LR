@@ -123,9 +123,9 @@ set clipboard+=unnamed
 " Don't show intro
 " set shortmess+=I
 
-" Better splits (new windows appear below and to the right)
-set splitbelow
-set splitright
+" Better splits (new windows appear above and to the left)
+set nosplitbelow
+set nosplitright
 
 " Highlight the current line
 " set cursorline
@@ -164,9 +164,9 @@ let g:tex_fold_enabled=1
 " Maximum highlighting. For details ':h python.vim'.
 let python_highlight_all = 1
 let g:jedi#force_py_version =3 " for details :h jedi-vim
-""" Set python3 paths to point to python3.6:
-" set pythonthreehome=/opt/anaconda3
-" set pythonthreedll =/opt/anaconda3/lib/libpython3.6m.dylib
+""" Set python3 paths to point to python3.7:
+set pythonthreehome=/opt/anaconda3
+set pythonthreedll =/opt/anaconda3/lib/libpython3.7m.dylib
 " }}}
 
 """ Grep settings
@@ -369,6 +369,27 @@ let g:markdown_fold_style = 'nested'
 "
 
 " }}}
+"" vimwiki    {{{
+
+let g:vimwiki_conceallevel = 1 " 0 - do not conceal chars marked with conceal syntax
+let g:vimwiki_global_ext = 1 " 0/1 - disable/enable creating of temporary wikis.
+let g:vimwiki_path      = './'
+let g:vimwiki_path_html = './'
+let g:vimwiki_maxhi     = 1  " max decorations
+let g:vimwiki_auto_toc  = 1  " auto-generate table-of-contents
+let g:vimwiki_html_header_numbering = 2
+let g:vimwiki_folding = 'syntax'
+
+let wiki_1 = {}
+let wiki_1.path  = '~/vimwiki/'
+let wiki_1.path_html  = '~/vimwiki_html/'
+let wiki_1.maxhi = 1  " max decorations
+let wiki_1.auto_toc = 1  " auto-generate table-of-contents
+
+" let g:vimwiki_list = [wiki_1]
+
+"" }}}
+
 " }}}1
 
 " Commands, Functions {{{
@@ -409,6 +430,7 @@ augroup vimrc
   " http://vim.wikia.com/wiki/Word_wrap_without_line_breaks :
   autocmd Filetype markdown setlocal wrap linebreak nolist textwidth=0 wrapmargin=0
   autocmd FileType sh,ruby,yaml,zsh,vim setlocal shiftwidth=2 tabstop=4 softtabstop=4 expandtab
+  autocmd FileType vimwiki              setlocal shiftwidth=2 tabstop=2 softtabstop=2 expandtab
   autocmd FileType tex,lyx setlocal foldmarker=<<:,>>:
 
   " specify syntax highlighting for specific files
@@ -550,8 +572,8 @@ noremap <C-W>= <C-W>+
 " Attempting to map <C-W> < and > didn't work
 " Same with mapping <C-W>|
 
-" Tmux style window selection
-map <Leader>ws :ChooseWin<cr>
+""" Tmux style window selection
+" map <Leader>ws :ChooseWin<cr>
 
 " Remap ctrl-a and ctrl-x to ctrl-alt-a and ctrl-alt-x
 noremap <C-M-a> <C-a>
