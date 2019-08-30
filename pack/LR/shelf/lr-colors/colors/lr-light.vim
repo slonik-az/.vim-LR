@@ -73,5 +73,12 @@ hi hiLR  gui=bold guibg=#ffaaff guifg=#0000bb
 hi hiLR3 gui=bold guibg=#ffff00 guifg=#e00000
 hi hiLR4 gui=bold guifg=#ff0000 guibg=#00ffff
 
+""" Markdown highlighting
+hi markdownH1 gui=bold guibg=#ff8888
+hi markdownH2 gui=bold guibg=#00ff00
+hi markdownBold gui=bold guifg=#0000ff
+hi markdownCode gui=bold guifg=#0000cc
+hi markdownItalic gui=bold guifg=#7744ff
+
 " #########
 " vim: sw=2

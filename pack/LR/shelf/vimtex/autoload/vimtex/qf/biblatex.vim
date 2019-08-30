@@ -8,9 +8,7 @@ function! vimtex#qf#biblatex#addqflist(blg) abort " {{{1
   if get(g:vimtex_quickfix_blgparser, 'disable') | return | endif
 
   try
-    call s:biblatex.prepare(a:blg)
-    call s:biblatex.addqflist()
-    call s:biblatex.restore()
+    call s:biblatex.addqflist(a:blg)
   catch /biblatex Aborted/
   endtry
 endfunction
@@ -22,8 +20,9 @@ let s:biblatex = {
       \ 'types' : [],
       \ 'db_files' : [],
       \}
-function! s:biblatex.prepare(blg) abort " {{{1
+function! s:biblatex.addqflist(blg) abort " {{{1
   let self.file = a:blg
+  let self.root = fnamemodify(a:blg, ':h')
   if empty(self.file) | throw 'biblatex Aborted' | endif
 
   let self.types = map(
@@ -31,33 +30,25 @@ function! s:biblatex.prepare(blg) abort " {{{1
         \ 'v:val[1]')
   let self.db_files = []
 
-  augroup vimtex_qf_tmp
-    autocmd!
-    autocmd QuickFixCmdPost [cl]*file call s:biblatex.fix_paths()
-  augroup END
-
   let self.errorformat_saved = &l:errorformat
-
   setlocal errorformat=%+E%.%#\>\ ERROR%m
   setlocal errorformat+=%+W%.%#\>\ WARN\ -\ Duplicate\ entry%m
   setlocal errorformat+=%+W%.%#\>\ WARN\ -\ The\ entry%.%#cannot\ be\ encoded%m
   setlocal errorformat+=%-G%.%#
-endfunction
-
-" }}}1
-function! s:biblatex.addqflist() abort " {{{1
   execute 'caddfile' fnameescape(self.file)
-endfunction
-
-" }}}1
-function! s:biblatex.restore() abort " {{{1
   let &l:errorformat = self.errorformat_saved
-  autocmd! vimtex_qf_tmp
+
+  call self.fix_paths()
 endfunction
 
 " }}}1
 function! s:biblatex.fix_paths() abort " {{{1
-  let l:qflist = deepcopy(getqflist())
+  let l:qflist = getqflist()
+  try
+    let l:title = getqflist({'title': 1})
+  catch /E118/
+    let l:title = 'Vimtex errors'
+  endtry
 
   for l:qf in l:qflist
     for l:type in self.types
@@ -66,6 +57,12 @@ function! s:biblatex.fix_paths() abort " {{{1
   endfor
 
   call setqflist(l:qflist, 'r')
+
+  " Set title if supported
+  try
+    call setqflist([], 'r', l:title)
+  catch
+  endtry
 endfunction
 
 " }}}1
@@ -98,6 +95,20 @@ function! s:biblatex.get_db_files() abort " {{{1
 endfunction
 
 " }}}1
+function! s:biblatex.get_filename(name) abort " {{{1
+  if !filereadable(a:name)
+    for l:root in [self.root, b:vimtex.root]
+      let l:candidate = fnamemodify(simplify(l:root . '/' . a:name), ':.')
+      if filereadable(l:candidate)
+        return l:candidate
+      endif
+    endfor
+  endif
+
+  return a:name
+endfunction
+
+" }}}1
 function! s:biblatex.get_key_pos(key) abort " {{{1
   for l:file in self.get_db_files()
     let l:lnum = self.get_key_lnum(a:key, l:file)
@@ -111,6 +122,8 @@ endfunction
 
 " }}}1
 function! s:biblatex.get_key_lnum(key, filename) abort " {{{1
+  if !filereadable(a:filename) | return 0 | endif
+
   let l:lines = readfile(a:filename)
   let l:lnums = range(len(l:lines))
   let l:annotated_lines = map(l:lnums, '[v:val, l:lines[v:val]]')
@@ -143,7 +156,7 @@ let s:type_parse_error = {}
 function! s:type_parse_error.fix(ctx, entry) abort " {{{1
   if a:entry.text =~# 'ERROR - BibTeX subsystem.*expected end of entry'
     let l:matches = matchlist(a:entry.text, '\v(\S*\.bib).*line (\d+)')
-    let a:entry.filename = fnamemodify(l:matches[1], ':t')
+    let a:entry.filename = a:ctx.get_filename(fnamemodify(l:matches[1], ':t'))
     let a:entry.lnum = l:matches[2]
 
     " Use filename and line number to get entry name
@@ -162,7 +175,7 @@ function! s:type_duplicate.fix(ctx, entry) abort " {{{1
   if a:entry.text =~# 'WARN - Duplicate entry'
     let l:matches = matchlist(a:entry.text, '\v: ''(\S*)'' in file ''(.{-})''')
     let l:key = l:matches[1]
-    let a:entry.filename = l:matches[2]
+    let a:entry.filename = a:ctx.get_filename(l:matches[2])
     let a:entry.lnum = a:ctx.get_key_lnum(l:key, a:entry.filename)
     let a:entry.text = 'biblatex: Duplicate entry key "' . l:key . '"'
     return 1
@@ -179,7 +192,7 @@ function! s:type_no_driver.fix(ctx, entry) abort " {{{1
 
     let l:pos = a:ctx.get_key_pos(l:key)
     if !empty(l:pos)
-      let a:entry.filename = l:pos[0]
+      let a:entry.filename = a:ctx.get_filename(l:pos[0])
       let a:entry.lnum = l:pos[1]
       if has_key(a:entry, 'bufnr')
         unlet a:entry.bufnr
@@ -221,7 +234,7 @@ function! s:type_encoding.fix(ctx, entry) abort " {{{1
 
     let l:pos = a:ctx.get_key_pos(l:key)
     if !empty(l:pos)
-      let a:entry.filename = l:pos[0]
+      let a:entry.filename = a:ctx.get_filename(l:pos[0])
       let a:entry.lnum = l:pos[1]
       if has_key(a:entry, 'bufnr')
         unlet a:entry.bufnr
@@ -233,5 +246,3 @@ function! s:type_encoding.fix(ctx, entry) abort " {{{1
 endfunction
 
 " }}}1
-
-" vim: fdm=marker sw=2

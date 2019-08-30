@@ -4,7 +4,32 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimtex#paths#shorten_relative(path) " {{{1
+function! vimtex#paths#pushd(path) abort " {{{1
+  if empty(a:path) || getcwd() ==# fnamemodify(a:path, ':p')
+    let s:qpath += ['']
+  else
+    let s:qpath += [getcwd()]
+    execute s:cd fnameescape(a:path)
+  endif
+endfunction
+
+" }}}1
+function! vimtex#paths#popd() abort " {{{1
+  let l:path = remove(s:qpath, -1)
+  if !empty(l:path)
+    execute s:cd fnameescape(l:path)
+  endif
+endfunction
+
+" }}}1
+
+function! vimtex#paths#is_abs(path) abort " {{{1
+  return a:path =~# s:re_abs
+endfunction
+
+" }}}1
+
+function! vimtex#paths#shorten_relative(path) abort " {{{1
   " Input: An absolute path
   " Output: Relative path with respect to the vimtex root, path relative to
   "         vimtex root (unless absolute path is shorter)
@@ -15,7 +40,7 @@ function! vimtex#paths#shorten_relative(path) " {{{1
 endfunction
 
 " }}}1
-function! vimtex#paths#relative(path, current) " {{{1
+function! vimtex#paths#relative(path, current) abort " {{{1
   " Note: This algorithm is based on the one presented by @Offirmo at SO,
   "       http://stackoverflow.com/a/12498485/51634
   let l:target = substitute(a:path, '\\', '/', 'g')
@@ -43,4 +68,10 @@ endfunction
 
 " }}}1
 
-" vim: fdm=marker sw=2
+
+let s:cd = exists('*haslocaldir') && haslocaldir()
+      \ ? 'lcd'
+      \ : exists(':tcd') && haslocaldir(-1) ? 'tcd' : 'cd'
+let s:qpath = get(s:, 'qpath', [])
+
+let s:re_abs = has('win32') ? '^[A-Z]:[\\/]' : '^/'

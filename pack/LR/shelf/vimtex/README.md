@@ -33,14 +33,18 @@ Or use some other plugin manager:
 - [neobundle](https://github.com/Shougo/neobundle.vim)
 - [pathogen](https://github.com/tpope/vim-pathogen)
 
+If you use the new package feature in Vim, please note that it does not always put the runtimepaths in the right order. This may lead to an issue where vimtex does not seem to load. See [this comment in #1413](https://github.com/lervag/vimtex/issues/1413#issuecomment-513253660) for a suggested solution.
+
 ## Quick Start
 
 The following is a simple guide for how to use vimtex. It only displays the
 most basic features. Users are _strongly_ encouraged to read or at least skim
 through the documentation to learn about the different features and
-possibilities provided by vimtex (see
-[here](https://github.com/lervag/vimtex/blob/master/doc/vimtex.txt) or `:h
-vimtex`).
+possibilities provided by vimtex (see [`:h vimtex`](doc/vimtex.txt)).
+
+Note: Vimtex supports neovim; see the [related wiki
+section](https://github.com/lervag/vimtex/wiki/introduction#neovim) or `:h
+vimtex-faq-neovim`.
 
 ![Quick start gif](media/quick_start.gif?raw=true)
 
@@ -53,8 +57,10 @@ custom mappings.  All features are enabled by default, but each feature may be
 disabled if desired.
 
 - Document compilation with
-  [latexmk](http://users.phys.psu.edu/~collins/software/latexmk-jcc/) or
-  [latexrun](https://github.com/aclements/latexrun)
+  [latexmk](http://users.phys.psu.edu/~collins/software/latexmk-jcc/),
+  [latexrun](https://github.com/aclements/latexrun),
+  [tectonic](https://tectonic-typesetting.github.io), or
+  [arara](https://github.com/cereda/arara)
 - LaTeX log parsing for quickfix entries using
   - internal method
   - [pplatex](https://github.com/stefanhepp/pplatex)
@@ -77,11 +83,16 @@ disabled if desired.
 - Document navigation through
   - table of content
   - table of labels
-  - enhanced `gf` command
+  - proper settings for `'include'`, `'includexpr'`, `'suffixesadd'` and
+    `'define'`, which among other things
+    - allow `:h include-search` and `:h definition-search`
+    - give enhanced `gf` command
 - Easy access to (online) documentation of packages
 - Word count (through `texcount`)
 - Motions
-  - Move between sections with `[[`, `[]`, `][`, `]]`
+  - Move between section boundaries with `[[`, `[]`, `][`, and `]]`
+  - Move between environment boundaries with `[m`, `[M`, `]m`, and `]M`
+  - Move between comment boundaries with `[*` and `]*`
   - Move between matching delimiters with `%`
 - Text objects
   - `ic ac` Commands
@@ -107,7 +118,7 @@ disabled if desired.
   - Support for `cleveref` package
   - Support for `listings` package
   - Nested syntax highlighting (`minted`, `dot2tex`, `lualatex`,
-    `gnuplottex`, `asymptote`)
+    `gnuplottex`, `asymptote`, `pythontex`)
 - Support for multi-file project packages
   - [import](http://ctan.uib.no/macros/latex/contrib/import/import.pdf)
   - [subfiles](http://ctan.uib.no/macros/latex/contrib/subfiles/subfiles.pdf)
@@ -169,8 +180,8 @@ The following are some alternative LaTeX plugins for Vim:
     - vimtex builds upon Vim principles: It provides text objects for
       environments, inline math, it provides motions for sections and
       paragraphs
-    - vimtex uses `latexrun` or `latexmk` for compilation with a callback
-      feature to get instant feedback on compilation errors
+    - vimtex uses `latexmk`, `latexrun`, `tectonic` or `arara` for compilation
+      with a callback feature to get instant feedback on compilation errors
     - vimtex is very modular: if you don't like a feature, you can turn it off.
 
 - [AutomaticTexPlugin](http://atp-vim.sourceforge.net)

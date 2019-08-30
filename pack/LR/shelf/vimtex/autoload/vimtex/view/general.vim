@@ -4,7 +4,7 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimtex#view#general#new() " {{{1
+function! vimtex#view#general#new() abort " {{{1
   " Check if the viewer is executable
   if !executable(g:vimtex_view_general_viewer)
     call vimtex#log#warning(
@@ -31,7 +31,7 @@ let s:general = {
       \ 'name' : 'General'
       \}
 
-function! s:general.view(file) dict " {{{1
+function! s:general.view(file) dict abort " {{{1
   if empty(a:file)
     let outfile = self.out()
 
@@ -43,6 +43,13 @@ function! s:general.view(file) dict " {{{1
   else
     let outfile = a:file
   endif
+
+  " Update the path for Windows on cygwin
+  if executable('cygpath')
+    let outfile = substitute(
+          \ system('cygpath -aw "' . outfile . '"'), '\n', '', 'g')
+  endif
+
   if vimtex#view#common#not_readable(outfile) | return | endif
 
   " Parse options
@@ -57,7 +64,7 @@ function! s:general.view(file) dict " {{{1
   let l:cmd = substitute(l:cmd, '@pdf', vimtex#util#shellescape(outfile), 'g')
 
   " Start the view process
-  let self.process = vimtex#process#start(l:cmd)
+  let self.process = vimtex#process#start(l:cmd, {'silent': 0})
 
   if has_key(self, 'hook_view')
     call self.hook_view()
@@ -65,7 +72,7 @@ function! s:general.view(file) dict " {{{1
 endfunction
 
 " }}}1
-function! s:general.latexmk_append_argument() dict " {{{1
+function! s:general.latexmk_append_argument() dict abort " {{{1
   if g:vimtex_view_use_temp_files
     return ' -view=none'
   else
@@ -80,5 +87,18 @@ function! s:general.latexmk_append_argument() dict " {{{1
 endfunction
 
 " }}}1
+function! s:general.compiler_callback(status) dict abort " {{{1
+  if !a:status && g:vimtex_view_use_temp_files < 2
+    return
+  endif
 
-" vim: fdm=marker sw=2
+  if g:vimtex_view_use_temp_files
+    call self.copy_files()
+  endif
+
+  if has_key(self, 'hook_callback')
+    call self.hook_callback()
+  endif
+endfunction
+
+" }}}1

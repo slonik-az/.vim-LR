@@ -91,10 +91,7 @@ function! s:process._pre_run() abort dict " {{{1
     let self.output = 'null'
   endif
 
-  if !empty(self.workdir)
-    let self.save_pwd = getcwd()
-    execute 'lcd' fnameescape(self.workdir)
-  endif
+  call vimtex#paths#pushd(self.workdir)
 endfunction
 
 " }}}1
@@ -118,9 +115,7 @@ endfunction
 
 " }}}1
 function! s:process._post_run() abort dict " {{{1
-  if !empty(self.workdir)
-    execute 'lcd' fnameescape(self.save_pwd)
-  endif
+  call vimtex#paths#popd()
 endfunction
 
 " }}}1
@@ -156,10 +151,14 @@ if has('win32')
       else
         let l:cmd = 'cmd /c "' . l:cmd . '"'
       endif
-      let l:cmd = 'start /b "' . cmd . '"'
+      let l:cmd = 'start /b ' . cmd
     endif
 
-    let self.prepared_cmd = l:cmd
+    if self.silent && self.output ==# 'null'
+      let self.prepared_cmd = '"' . l:cmd . '"'
+    else
+      let self.prepared_cmd = l:cmd
+    endif
   endfunction
 
   " }}}1
@@ -209,5 +208,3 @@ else
 
   " }}}1
 endif
-
-" vim: fdm=marker sw=2

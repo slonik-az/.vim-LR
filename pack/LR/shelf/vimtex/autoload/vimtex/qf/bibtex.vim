@@ -8,9 +8,7 @@ function! vimtex#qf#bibtex#addqflist(blg) abort " {{{1
   if get(g:vimtex_quickfix_blgparser, 'disable') | return | endif
 
   try
-    call s:bibtex.prepare(a:blg)
-    call s:bibtex.addqflist()
-    call s:bibtex.restore()
+    call s:bibtex.addqflist(a:blg)
   catch /BibTeX Aborted/
   endtry
 endfunction
@@ -22,7 +20,7 @@ let s:bibtex = {
       \ 'types' : [],
       \ 'db_files' : [],
       \}
-function! s:bibtex.prepare(blg) abort " {{{1
+function! s:bibtex.addqflist(blg) abort " {{{1
   let self.file = a:blg
   if empty(self.file) || !filereadable(self.file) | throw 'BibTeX Aborted' | endif
 
@@ -31,35 +29,27 @@ function! s:bibtex.prepare(blg) abort " {{{1
         \ 'v:val[1]')
   let self.db_files = []
 
-  augroup vimtex_qf_tmp
-    autocmd!
-    autocmd QuickFixCmdPost [cl]*file call s:bibtex.fix_paths()
-  augroup END
-
   let self.errorformat_saved = &l:errorformat
-
   setlocal errorformat=%+E%.%#---line\ %l\ of\ file\ %f
   setlocal errorformat+=%+EI\ found\ %.%#---while\ reading\ file\ %f
   setlocal errorformat+=%+WWarning--empty\ %.%#\ in\ %.%m
   setlocal errorformat+=%+WWarning--entry\ type\ for%m
   setlocal errorformat+=%-C--line\ %l\ of\ file\ %f
   setlocal errorformat+=%-G%.%#
-endfunction
-
-" }}}1
-function! s:bibtex.addqflist() abort " {{{1
   execute 'caddfile' fnameescape(self.file)
-endfunction
-
-" }}}1
-function! s:bibtex.restore() abort " {{{1
   let &l:errorformat = self.errorformat_saved
-  autocmd! vimtex_qf_tmp
+
+  call self.fix_paths()
 endfunction
 
 " }}}1
 function! s:bibtex.fix_paths() abort " {{{1
   let l:qflist = getqflist()
+  try
+    let l:title = getqflist({'title': 1})
+  catch /E118/
+    let l:title = 'Vimtex errors'
+  endtry
 
   for l:qf in l:qflist
     for l:type in self.types
@@ -68,14 +58,27 @@ function! s:bibtex.fix_paths() abort " {{{1
   endfor
 
   call setqflist(l:qflist, 'r')
+
+  " Set title if supported
+  try
+    call setqflist([], 'r', l:title)
+  catch
+  endtry
 endfunction
 
 " }}}1
 function! s:bibtex.get_db_files() abort " {{{1
   if empty(self.db_files)
-    let self.db_files = map(
+    let l:build_dir = fnamemodify(b:vimtex.ext('log'), ':.:h') . '/'
+    for l:file in map(
           \ filter(readfile(self.file), 'v:val =~# ''Database file #\d:'''),
           \ 'matchstr(v:val, '': \zs.*'')')
+      if filereadable(l:file)
+        call add(self.db_files, l:file)
+      elseif filereadable(l:build_dir . l:file)
+        call add(self.db_files, l:build_dir . l:file)
+      endif
+    endfor
   endif
 
   return self.db_files
@@ -178,5 +181,3 @@ function! s:type_no_bibstyle.fix(ctx, entry) abort " {{{1
 endfunction
 
 " }}}1
-
-" vim: fdm=marker sw=2

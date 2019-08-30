@@ -4,26 +4,26 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimtex#env#init_buffer() " {{{1
+function! vimtex#env#init_buffer() abort " {{{1
   nnoremap <silent><buffer> <plug>(vimtex-env-delete)
-        \ :call vimtex#env#delete('env_tex')<cr>
+        \ :<c-u>call <sid>operator_setup('delete', 'env_tex')<bar>normal! g@l<cr>
 
   nnoremap <silent><buffer> <plug>(vimtex-env-change)
-        \ :call vimtex#env#change_prompt('env_tex')<cr>
+        \ :<c-u>call <sid>operator_setup('change', 'env_tex')<bar>normal! g@l<cr>
 
   nnoremap <silent><buffer> <plug>(vimtex-env-delete-math)
-        \ :call vimtex#env#delete('env_math')<cr>
+        \ :<c-u>call <sid>operator_setup('delete', 'env_math')<bar>normal! g@l<cr>
 
   nnoremap <silent><buffer> <plug>(vimtex-env-change-math)
-        \ :call vimtex#env#change_prompt('env_math')<cr>
+        \ :<c-u>call <sid>operator_setup('change', 'env_math')<bar>normal! g@l<cr>
 
   nnoremap <silent><buffer> <plug>(vimtex-env-toggle-star)
-        \ :call vimtex#env#toggle_star()<cr>
+        \ :<c-u>call <sid>operator_setup('toggle_star', '')<bar>normal! g@l<cr>
 endfunction
 
 " }}}1
 
-function! vimtex#env#change(open, close, new) " {{{1
+function! vimtex#env#change(open, close, new) abort " {{{1
   "
   " Set target environment
   "
@@ -64,93 +64,130 @@ function! vimtex#env#change(open, close, new) " {{{1
   let l:line = getline(a:close.lnum)
   call setline(a:close.lnum,
         \ strpart(l:line, 0, l:c1-1) . l:end . strpart(l:line, l:c2))
+endfunction
 
-  if a:new ==# ''
-    silent! call repeat#set("\<plug>(vimtex-env-delete)", v:count)
+function! vimtex#env#change_surrounding_to(type, new) abort " {{{1
+  let [l:open, l:close] = vimtex#delim#get_surrounding(a:type)
+  if empty(l:open) | return | endif
+
+  return vimtex#env#change(l:open, l:close, a:new)
+endfunction
+
+function! vimtex#env#delete(type) abort " {{{1
+  let [l:open, l:close] = vimtex#delim#get_surrounding(a:type)
+  if empty(l:open) | return | endif
+
+  if a:type ==# 'env_tex'
+    call vimtex#cmd#delete_all(l:close)
+    call vimtex#cmd#delete_all(l:open)
   else
-    silent! call repeat#set(
-          \ "\<plug>(vimtex-env-change)" . a:new . '', v:count)
+    call l:close.remove()
+    call l:open.remove()
   endif
-endfunction
 
-function! vimtex#env#change_prompt(type) " {{{1
-  let [l:open, l:close] = vimtex#delim#get_surrounding(a:type)
-  if empty(l:open) | return | endif
-
-  let l:name = get(l:open, 'name', l:open.is_open
-        \ ? l:open.match . ' ... ' . l:open.corr
-        \ : l:open.match . ' ... ' . l:open.corr)
-
-  let l:new_env = vimtex#echo#input({
-        \ 'info' :
-        \   ['Change surrounding environment: ', ['VimtexWarning', l:name]],
-        \ 'complete' : 'customlist,vimtex#env#input_complete',
-        \})
-
-  if empty(l:new_env) | return | endif
-
-  call vimtex#env#change(l:open, l:close, l:new_env)
-endfunction
-
-function! vimtex#env#delete(type) " {{{1
-  let [l:open, l:close] = vimtex#delim#get_surrounding(a:type)
-  if empty(l:open) | return | endif
-
-  " Remove opening and closing environment commands
-  call vimtex#env#change(l:open, l:close, '')
-
-  " If the lines are empty afterwords, then we also delete the lines
   if getline(l:close.lnum) =~# '^\s*$'
     execute l:close.lnum . 'd _'
   endif
+
   if getline(l:open.lnum) =~# '^\s*$'
     execute l:open.lnum . 'd _'
   endif
-
-  if a:type ==# 'env_tex'
-    silent! call repeat#set("\<plug>(vimtex-env-delete)", v:count)
-  elseif a:type ==# 'env_math'
-    silent! call repeat#set("\<plug>(vimtex-env-delete-math)", v:count)
-  endif
 endfunction
 
-function! vimtex#env#toggle_star() " {{{1
+function! vimtex#env#toggle_star() abort " {{{1
   let [l:open, l:close] = vimtex#delim#get_surrounding('env_tex')
   if empty(l:open) | return | endif
 
   call vimtex#env#change(l:open, l:close,
         \ l:open.starred ? l:open.name : l:open.name . '*')
-
-  silent! call repeat#set("\<plug>(vimtex-env-toggle-star)", v:count)
 endfunction
 
 " }}}1
 
-function! vimtex#env#is_inside(env) " {{{1
+function! vimtex#env#is_inside(env) abort " {{{1
   let l:stopline = max([line('.') - 50, 1])
   return searchpairpos('\\begin\s*{' . a:env . '\*\?}', '',
-        \ '\\end\s*{' . a:env . '\*\?}', 'bnW', 0, l:stopline)
+        \ '\\end\s*{' . a:env . '\*\?}', 'bnW', '', l:stopline)
 endfunction
 
 " }}}1
-function! vimtex#env#input_complete(lead, cmdline, pos) " {{{1
-  " Always include displaymath
-  let l:cands = ['\[']
+function! vimtex#env#input_complete(lead, cmdline, pos) abort " {{{1
+  let l:cands = map(vimtex#complete#complete('env', '', '\begin'), 'v:val.word')
 
-  try
-    let l:cands += vimtex#util#uniq(sort(
-          \ map(filter(vimtex#parser#tex(b:vimtex.tex, { 'detailed' : 0 }),
-          \          'v:val =~# ''\\begin'''),
-          \   'matchstr(v:val, ''\\begin{\zs\k*\ze\*\?}'')')))
+  " Never include document and remove current env (place it first)
+  call filter(l:cands, 'index([''document'', s:env_name], v:val) < 0')
 
-    " Never include document
-    call remove(l:cands, index(l:cands, 'document'))
-  catch
-  endtry
+  " Always include current env and displaymath
+  let l:cands = [s:env_name] + l:cands + ['\[']
 
   return filter(l:cands, 'v:val =~# ''^' . a:lead . '''')
 endfunction
 
 " }}}1
 
-" vim: fdm=marker sw=2
+function! s:change_prompt(type) abort " {{{1
+  let [l:open, l:close] = vimtex#delim#get_surrounding(a:type)
+  if empty(l:open) | return | endif
+
+  if g:vimtex_env_change_autofill
+    let l:name = get(l:open, 'name', l:open.match)
+    let s:env_name = l:name
+    return vimtex#echo#input({
+          \ 'prompt' : 'Change surrounding environment: ',
+          \ 'default' : l:name,
+          \ 'complete' : 'customlist,vimtex#env#input_complete',
+          \})
+  else
+    let l:name = get(l:open, 'name', l:open.is_open
+          \ ? l:open.match . ' ... ' . l:open.corr
+          \ : l:open.match . ' ... ' . l:open.corr)
+    let s:env_name = l:name
+    return vimtex#echo#input({
+          \ 'info' :
+          \   ['Change surrounding environment: ', ['VimtexWarning', l:name]],
+          \ 'complete' : 'customlist,vimtex#env#input_complete',
+          \})
+  endif
+endfunction
+
+" }}}1
+
+function! s:operator_setup(operator, type) abort " {{{1
+  let &opfunc = s:snr() . 'operator_function'
+
+  let s:operator_abort = 0
+  let s:operator = a:operator
+  let s:operator_type = a:type
+
+  " Ask for user input if necessary/relevant
+  if s:operator ==# 'change'
+    let l:new_env = s:change_prompt(s:operator_type)
+    if empty(l:new_env)
+      let s:operator_abort = 1
+      return
+    endif
+
+    let s:operator_name = l:new_env
+  endif
+endfunction
+
+" }}}1
+function! s:operator_function(_) abort " {{{1
+  if get(s:, 'operator_abort', 0) | return | endif
+
+  let l:type = get(s:, 'operator_type', '')
+  let l:name = get(s:, 'operator_name', '')
+
+  execute 'call vimtex#env#' . {
+        \   'change': 'change_surrounding_to(l:type, l:name)',
+        \   'delete': 'delete(l:type)',
+        \   'toggle_star': 'toggle_star()',
+        \ }[s:operator]
+endfunction
+
+" }}}1
+function! s:snr() abort " {{{1
+  return matchstr(expand('<sfile>'), '<SNR>\d\+_')
+endfunction
+
+" }}}1

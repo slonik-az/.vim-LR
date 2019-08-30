@@ -48,7 +48,15 @@ function! vimtex#qf#open(force) abort " {{{1
     if a:force
       call vimtex#log#warning('No log file found')
     endif
-    cclose
+    if g:vimtex_quickfix_mode > 0
+      cclose
+    endif
+    return
+  catch
+    call vimtex#log#error('Something went wrong when parsing log files!')
+    if g:vimtex_quickfix_mode > 0
+      cclose
+    endif
     return
   endtry
 
@@ -56,7 +64,9 @@ function! vimtex#qf#open(force) abort " {{{1
     if a:force
       call vimtex#log#info('No errors!')
     endif
-    cclose
+    if g:vimtex_quickfix_mode > 0
+      cclose
+    endif
     return
   endif
 
@@ -66,7 +76,8 @@ function! vimtex#qf#open(force) abort " {{{1
   " warnings (forced typically imply that the functions is called from the
   " normal mode mapping).  Else the behaviour is based on the settings.
   "
-  let l:errors_or_warnings = s:qf_has_errors() || g:vimtex_quickfix_open_on_warning
+  let l:errors_or_warnings = s:qf_has_errors()
+        \ || g:vimtex_quickfix_open_on_warning
 
   if a:force || (g:vimtex_quickfix_mode > 0 && l:errors_or_warnings)
     call s:window_save()
@@ -74,9 +85,13 @@ function! vimtex#qf#open(force) abort " {{{1
     if g:vimtex_quickfix_mode == 2
       call s:window_restore()
     endif
+    if g:vimtex_quickfix_autoclose_after_keystrokes > 0
+      augroup vimtex_qf_autoclose
+        autocmd!
+        autocmd CursorMoved,CursorMovedI * call s:qf_autoclose_check()
+      augroup END
+    endif
     redraw
-  elseif !l:errors_or_warnings
-    cclose
   endif
 endfunction
 
@@ -170,5 +185,27 @@ function! s:qf_has_errors() abort " {{{1
 endfunction
 
 " }}}1
+"
+function! s:qf_autoclose_check() abort " {{{1
+  if get(s:, 'keystroke_counter') == 0
+    let s:keystroke_counter = g:vimtex_quickfix_autoclose_after_keystrokes
+  endif
 
-" vim: fdm=marker sw=2
+  redir => l:bufstring
+  silent! ls!
+  redir END
+
+  if empty(filter(split(l:bufstring, '\n'), 'v:val =~# ''%a- .*Quickfix'''))
+    let s:keystroke_counter -= 1
+  else
+    let s:keystroke_counter = g:vimtex_quickfix_autoclose_after_keystrokes + 1
+  endif
+
+  if s:keystroke_counter == 0
+    cclose
+    autocmd! vimtex_qf_autoclose
+    augroup! vimtex_qf_autoclose
+  endif
+endfunction
+
+" }}}1

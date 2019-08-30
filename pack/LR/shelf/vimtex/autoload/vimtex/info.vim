@@ -4,7 +4,7 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimtex#info#init_buffer() " {{{1
+function! vimtex#info#init_buffer() abort " {{{1
   command! -buffer -bang VimtexInfo call vimtex#info#open(<q-bang> == '!')
 
   nnoremap <buffer> <plug>(vimtex-info)      :VimtexInfo<cr>
@@ -181,7 +181,9 @@ function! s:get_os_info() abort " {{{1
   let l:os = vimtex#util#get_os()
 
   if l:os ==# 'linux'
-    let l:result = system('lsb_release -d')[12:-2]
+    let l:result = executable('lsb_release')
+          \ ? system('lsb_release -d')[12:-2]
+          \ : system('uname -sr')[:-2]
     return substitute(l:result, '^\s*', '', '')
   elseif l:os ==# 'mac'
     let l:name = system('sw_vers -productName')[:-2]
@@ -214,5 +216,3 @@ function! s:get_vim_info() abort " {{{1
 endfunction
 
 " }}}1
-
-" vim: fdm=marker sw=2

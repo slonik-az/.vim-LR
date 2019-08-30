@@ -4,14 +4,14 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimtex#view#skim#new() " {{{1
+function! vimtex#view#skim#new() abort " {{{1
   " Check if Skim is installed
   let l:cmd = join([
         \ 'osascript -e ',
         \ '''tell application "Finder" to POSIX path of ',
         \ '(get application file id (id of application "Skim") as alias)''',
         \])
-  
+
   if system(l:cmd)
     call vimtex#log#error('Skim is not installed!')
     return {}
@@ -27,7 +27,7 @@ let s:skim = {
       \ 'startskim' : 'open -a Skim',
       \}
 
-function! s:skim.view(file) dict " {{{1
+function! s:skim.view(file) dict abort " {{{1
   if empty(a:file)
     let outfile = self.out()
 
@@ -54,7 +54,8 @@ function! s:skim.view(file) dict " {{{1
         \ '-e ''end try''',
         \ '-e ''open theFile''',
         \ '-e ''tell front document to go to TeX line theLine from theSource',
-        \ '     showing reading bar true''',
+        \ g:vimtex_view_skim_reading_bar ? 'showing reading bar true''' : '''',
+        \ g:vimtex_view_skim_activate ? '-e ''activate''' : '',
         \ '-e ''end tell''',
         \])
 
@@ -66,7 +67,7 @@ function! s:skim.view(file) dict " {{{1
 endfunction
 
 " }}}1
-function! s:skim.compiler_callback(status) dict " {{{1
+function! s:skim.compiler_callback(status) dict abort " {{{1
   if !a:status && g:vimtex_view_use_temp_files < 2
     return
   endif
@@ -89,7 +90,7 @@ function! s:skim.compiler_callback(status) dict " {{{1
         \ '-e ''open theFile''',
         \ '-e ''end tell''',
         \])
-  
+
   let self.process = vimtex#process#start(l:cmd)
 
   if has_key(self, 'hook_callback')
@@ -98,7 +99,7 @@ function! s:skim.compiler_callback(status) dict " {{{1
 endfunction
 
 " }}}1
-function! s:skim.latexmk_append_argument() dict " {{{1
+function! s:skim.latexmk_append_argument() dict abort " {{{1
   if g:vimtex_view_use_temp_files || g:vimtex_view_automatic
     return ' -view=none'
   else
@@ -107,5 +108,3 @@ function! s:skim.latexmk_append_argument() dict " {{{1
 endfunction
 
 " }}}1
-
-" vim: fdm=marker sw=2

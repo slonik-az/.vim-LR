@@ -4,7 +4,7 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimtex#util#command(cmd) " {{{1
+function! vimtex#util#command(cmd) abort " {{{1
   let l:a = @a
   try
     silent! redir @a
@@ -18,7 +18,71 @@ function! vimtex#util#command(cmd) " {{{1
 endfunction
 
 " }}}1
-function! vimtex#util#shellescape(cmd) " {{{1
+function! vimtex#util#get_os() abort " {{{1
+  if has('win32') || has('win32unix')
+    return 'win'
+  elseif has('unix')
+    if has('mac') || system('uname') =~# 'Darwin'
+      return 'mac'
+    else
+      return 'linux'
+    endif
+  endif
+endfunction
+
+" }}}1
+function! vimtex#util#in_comment(...) abort " {{{1
+  return call('vimtex#util#in_syntax', ['texComment'] + a:000)
+endfunction
+
+" }}}1
+function! vimtex#util#in_mathzone(...) abort " {{{1
+  return call('vimtex#util#in_syntax', ['texMathZone'] + a:000)
+endfunction
+
+" }}}1
+function! vimtex#util#in_syntax(name, ...) abort " {{{1
+
+  " Usage: vimtex#util#in_syntax(name, [line, col])
+
+  " Get position and correct it if necessary
+  let l:pos = a:0 > 0 ? [a:1, a:2] : [line('.'), col('.')]
+  if mode() ==# 'i'
+    let l:pos[1] -= 1
+  endif
+  call map(l:pos, 'max([v:val, 1])')
+
+  " Check syntax at position
+  return match(map(synstack(l:pos[0], l:pos[1]),
+        \          "synIDattr(v:val, 'name')"),
+        \      '^' . a:name) >= 0
+endfunction
+
+" }}}1
+function! vimtex#util#extend_recursive(dict1, dict2, ...) abort " {{{1
+  let l:option = a:0 > 0 ? a:1 : 'force'
+  if index(['force', 'keep', 'error'], l:option) < 0
+    throw 'E475: Invalid argument: ' . l:option
+  endif
+
+  for [l:key, l:value] in items(a:dict2)
+    if !has_key(a:dict1, l:key)
+      let a:dict1[l:key] = l:value
+    elseif type(l:value) == type({})
+      call vimtex#util#extend_recursive(a:dict1[l:key], l:value, l:option)
+    elseif l:option ==# 'error'
+      throw 'E737: Key already exists: ' . l:key
+    elseif l:option ==# 'force'
+      let a:dict1[l:key] = l:value
+    endif
+    unlet l:value
+  endfor
+
+  return a:dict1
+endfunction
+
+" }}}1
+function! vimtex#util#shellescape(cmd) abort " {{{1
   "
   " Path used in "cmd" only needs to be enclosed by double quotes.
   " shellescape() on Windows with "shellslash" set will produce a path
@@ -37,48 +101,7 @@ function! vimtex#util#shellescape(cmd) " {{{1
 endfunction
 
 " }}}1
-function! vimtex#util#get_os() " {{{1
-  if has('win32')
-    return 'win'
-  elseif has('unix')
-    if system('uname') =~# 'Darwin'
-      return 'mac'
-    else
-      return 'linux'
-    endif
-  endif
-endfunction
-
-" }}}1
-function! vimtex#util#in_comment(...) " {{{1
-  return call('vimtex#util#in_syntax', ['texComment'] + a:000)
-endfunction
-
-" }}}1
-function! vimtex#util#in_mathzone(...) " {{{1
-  return call('vimtex#util#in_syntax', ['texMathZone'] + a:000)
-endfunction
-
-" }}}1
-function! vimtex#util#in_syntax(name, ...) " {{{1
-
-  " Usage: vimtex#util#in_syntax(name, [line, col])
-
-  " Get position and correct it if necessary
-  let l:pos = a:0 > 0 ? [a:1, a:2] : [line('.'), col('.')]
-  if mode() ==# 'i'
-    let l:pos[1] -= 1
-  endif
-  call map(l:pos, 'max([v:val, 1])')
-
-  " Check syntax at position
-  return match(map(synstack(l:pos[0], l:pos[1]),
-        \          "synIDattr(v:val, 'name')"),
-        \      '^' . a:name) >= 0
-endfunction
-
-" }}}1
-function! vimtex#util#uniq(list) " {{{1
+function! vimtex#util#uniq(list) abort " {{{1
   if exists('*uniq') | return uniq(a:list) | endif
   if len(a:list) <= 1 | return a:list | endif
 
@@ -92,7 +115,7 @@ function! vimtex#util#uniq(list) " {{{1
 endfunction
 
 " }}}1
-function! vimtex#util#uniq_unsorted(list) " {{{1
+function! vimtex#util#uniq_unsorted(list) abort " {{{1
   if len(a:list) <= 1 | return a:list | endif
 
   let l:visited = [a:list[0]]
@@ -107,5 +130,3 @@ function! vimtex#util#uniq_unsorted(list) " {{{1
 endfunction
 
 " }}}1
-
-" vim: fdm=marker sw=2

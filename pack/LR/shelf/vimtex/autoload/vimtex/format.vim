@@ -4,7 +4,7 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimtex#format#init_buffer() " {{{1
+function! vimtex#format#init_buffer() abort " {{{1
   if !g:vimtex_format_enabled | return | endif
 
   setlocal formatexpr=vimtex#format#formatexpr()
@@ -12,9 +12,11 @@ endfunction
 
 " }}}1
 
-function! vimtex#format#formatexpr() " {{{1
+function! vimtex#format#formatexpr() abort " {{{1
   if mode() =~# '[iR]' | return -1 | endif
 
+  " Temporary disable folds and save view
+  let l:save_view = winsaveview()
   let l:foldenable = &l:foldenable
   setlocal nofoldenable
 
@@ -49,6 +51,10 @@ function! vimtex#format#formatexpr() " {{{1
     let l:tries -= 1
   endwhile
 
+  " Restore fold and view
+  let &l:foldenable = l:foldenable
+  call winrestview(l:save_view)
+
   " Set cursor at appropriate position
   execute 'normal!' l:bottom . 'G^'
 
@@ -57,13 +63,11 @@ function! vimtex#format#formatexpr() " {{{1
     silent! undo
     call vimtex#log#warning('Formatting of selected text failed!')
   endif
-
-  let &l:foldenable = l:foldenable
 endfunction
 
 " }}}1
 
-function! s:format(top, bottom) " {{{1
+function! s:format(top, bottom) abort " {{{1
   let l:bottom = a:bottom
   let l:mark = a:bottom
   for l:current in range(a:bottom, a:top, -1)
@@ -118,7 +122,7 @@ function! s:format(top, bottom) " {{{1
 endfunction
 
 " }}}1
-function! s:format_build_lines(start, end) " {{{1
+function! s:format_build_lines(start, end) abort " {{{1
   "
   " Get the desired text to format as a list of words, but preserve the ending
   " line spaces
@@ -167,7 +171,7 @@ endfunction
 
 " }}}1
 
-function! s:compare_lines(new, old) " {{{1
+function! s:compare_lines(new, old) abort " {{{1
   let l:min_length = min([len(a:new), len(a:old)])
   for l:i in range(l:min_length)
     if a:new[l:i] !=# a:old[l:i]
@@ -178,7 +182,7 @@ function! s:compare_lines(new, old) " {{{1
 endfunction
 
 " }}}1
-function! s:get_indents(number) " {{{1
+function! s:get_indents(number) abort " {{{1
   return !&l:expandtab && &l:shiftwidth == &l:tabstop
         \ ? repeat("\t", a:number/&l:tabstop)
         \ : repeat(' ', a:number)
@@ -207,5 +211,3 @@ let s:border_end = '\v\\%(' . join([
       \ . '|^\s*%(\\\]|\$\$)\s*$'
 
 " }}}1
-
-" vim: fdm=marker sw=2

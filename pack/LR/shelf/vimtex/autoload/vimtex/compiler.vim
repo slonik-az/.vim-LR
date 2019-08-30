@@ -40,7 +40,7 @@ function! vimtex#compiler#init_state(state) abort " {{{1
           \ 'root': a:state.root,
           \ 'target' : a:state.base,
           \ 'target_path' : a:state.tex,
-          \ 'engine' : a:state.engine,
+          \ 'tex_program' : a:state.tex_program,
           \}
     let a:state.compiler
           \ = vimtex#compiler#{g:vimtex_compiler_method}#init(l:options)
@@ -79,7 +79,9 @@ function! vimtex#compiler#callback(status) abort " {{{1
   endif
 
   for l:hook in g:vimtex_compiler_callback_hooks
-    execute 'call' l:hook . '(' . a:status . ')'
+    if exists('*' . l:hook)
+      execute 'call' l:hook . '(' . a:status . ')'
+    endif
   endfor
 
   return ''
@@ -90,9 +92,11 @@ endfunction
 function! vimtex#compiler#compile() abort " {{{1
   if get(b:vimtex.compiler, 'continuous')
     if b:vimtex.compiler.is_running()
-      call b:vimtex.compiler.stop()
+      call vimtex#compiler#stop()
     else
       call b:vimtex.compiler.start()
+      silent! let b:vimtex.compiler.check_timer =
+              \ timer_start(50, function('s:check_if_running'), {'repeat': 20})
     endif
   else
     call b:vimtex.compiler.start_single()
@@ -115,7 +119,7 @@ function! vimtex#compiler#compile_selected(type) abort range " {{{1
         \ 'target' : l:file.base,
         \ 'target_path' : l:file.tex,
         \ 'backend' : 'process',
-        \ 'engine' : b:vimtex.engine,
+        \ 'tex_program' : b:vimtex.tex_program,
         \ 'background' : 1,
         \ 'continuous' : 0,
         \ 'callback' : 0,
@@ -140,7 +144,7 @@ function! vimtex#compiler#compile_selected(type) abort range " {{{1
 endfunction
 
 " }}}1
-function! vimtex#compiler#output() " {{{1
+function! vimtex#compiler#output() abort " {{{1
   let l:file = get(b:vimtex.compiler, 'output', '')
   if empty(l:file)
     call vimtex#log#warning('No output exists!')
@@ -165,24 +169,26 @@ function! vimtex#compiler#output() " {{{1
   let s:output.name = l:file
   let s:output.bufnr = bufnr('%')
   let s:output.winnr = bufwinnr('%')
-  function! s:output.update() dict
+  function! s:output.update() dict abort
     if bufwinnr(self.name) != self.winnr
       return
     endif
 
-    " Try to enforce a file read
-    execute 'checktime' self.name
-    redraw
+    if mode() ==? 'v' || mode() ==# "\<c-v>"
+      return
+    endif
 
     " Go to last line of file if it is not the current window
     if bufwinnr('%') != self.winnr
       let l:return = bufwinnr('%')
       execute 'keepalt' self.winnr . 'wincmd w'
+      edit
       normal! Gzb
       execute 'keepalt' l:return . 'wincmd w'
+      redraw
     endif
   endfunction
-  function! s:output.destroy() dict
+  function! s:output.destroy() dict abort
     autocmd! vimtex_output_window
     augroup! vimtex_output_window
     unlet s:output
@@ -201,9 +207,9 @@ function! vimtex#compiler#output() " {{{1
   augroup END
 
   " Set some mappings
-  nnoremap <silent><buffer> q :bwipeout<cr>
+  nnoremap <silent><nowait><buffer> q :bwipeout<cr>
   if has('nvim') || has('gui_running')
-    nnoremap <silent><buffer> <esc> :bwipeout<cr>
+    nnoremap <silent><nowait><buffer> <esc> :bwipeout<cr>
   endif
 
   " Set some buffer options
@@ -213,12 +219,13 @@ function! vimtex#compiler#output() " {{{1
 endfunction
 
 " }}}1
-function! vimtex#compiler#stop() " {{{1
+function! vimtex#compiler#stop() abort " {{{1
   call b:vimtex.compiler.stop()
+  silent! call timer_stop(b:vimtex.compiler.check_timer)
 endfunction
 
 " }}}1
-function! vimtex#compiler#stop_all() " {{{1
+function! vimtex#compiler#stop_all() abort " {{{1
   for l:state in vimtex#state#list_all()
     if exists('l:state.compiler.is_running')
           \ && l:state.compiler.is_running()
@@ -228,14 +235,16 @@ function! vimtex#compiler#stop_all() " {{{1
 endfunction
 
 " }}}1
-function! vimtex#compiler#clean(full) " {{{1
+function! vimtex#compiler#clean(full) abort " {{{1
   call b:vimtex.compiler.clean(a:full)
 
   if empty(b:vimtex.compiler.build_dir) | return | endif
   sleep 100m
 
   " Remove auxilliary output directories if they are empty
-  let l:build_dir = b:vimtex.root . '/' . b:vimtex.compiler.build_dir
+  let l:build_dir = (vimtex#paths#is_abs(b:vimtex.compiler.build_dir)
+        \ ? '' : b:vimtex.root . '/')
+        \ . b:vimtex.compiler.build_dir
   let l:tree = glob(l:build_dir . '/**/*', 0, 1)
   let l:files = filter(copy(l:tree), 'filereadable(v:val)')
   if !empty(l:files) | return | endif
@@ -246,7 +255,7 @@ function! vimtex#compiler#clean(full) " {{{1
 endfunction
 
 " }}}1
-function! vimtex#compiler#status(detailed) " {{{1
+function! vimtex#compiler#status(detailed) abort " {{{1
   if a:detailed
     let l:running = []
     for l:data in vimtex#state#list_all()
@@ -277,6 +286,20 @@ endfunction
 " }}}1
 
 
+function! s:check_if_running(...) abort " {{{1
+  if !exists('b:vimtex') | return | endif
+
+  if !b:vimtex.compiler.is_running()
+    call timer_stop(b:vimtex.compiler.check_timer)
+    unlet b:vimtex.compiler.check_timer
+    call vimtex#compiler#output()
+    call vimtex#log#error('Compiler did not start successfully!')
+  endif
+endfunction
+
+" }}}1
+
+
 " {{{1 Initialize module
 
 if !g:vimtex_compiler_enabled | finish | endif
@@ -287,5 +310,3 @@ augroup vimtex_compiler
 augroup END
 
 " }}}1
-
-" vim: fdm=marker sw=2

@@ -4,9 +4,10 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimtex#text_obj#init_buffer() " {{{1
+function! vimtex#text_obj#init_buffer() abort " {{{1
   if !g:vimtex_text_obj_enabled | return | endif
 
+  " Note: I've permitted myself long lines here to make this more readable.
   for [l:map, l:name, l:opt] in [
         \ ['c', 'commands', ''],
         \ ['d', 'delimited', 'delim_all'],
@@ -14,45 +15,82 @@ function! vimtex#text_obj#init_buffer() " {{{1
         \ ['$', 'delimited', 'env_math'],
         \ ['P', 'sections', ''],
         \]
-    let l:p1 = 'noremap <silent><buffer> <plug>(vimtex-'
-    let l:p2 = l:map . ') :<c-u>call vimtex#text_obj#' . l:name
-    let l:p3 = empty(l:opt) ? ')<cr>' : ',''' . l:opt . ''')<cr>'
-    execute 'x' . l:p1 . 'i' . l:p2 . '(1, 1' . l:p3
-    execute 'x' . l:p1 . 'a' . l:p2 . '(0, 1' . l:p3
-    execute 'o' . l:p1 . 'i' . l:p2 . '(1, 0' . l:p3
-    execute 'o' . l:p1 . 'a' . l:p2 . '(0, 0' . l:p3
+    let l:optional = empty(l:opt) ? '' : ',''' . l:opt . ''''
+    execute printf('xnoremap <silent><buffer> <plug>(vimtex-i%s) :<c-u>call vimtex#text_obj#%s(1, 1%s)<cr>', l:map, l:name, l:optional)
+    execute printf('xnoremap <silent><buffer> <plug>(vimtex-a%s) :<c-u>call vimtex#text_obj#%s(0, 1%s)<cr>', l:map, l:name, l:optional)
+    execute printf('onoremap <silent><buffer> <plug>(vimtex-i%s) :<c-u>call vimtex#text_obj#%s(1, 0%s)<cr>', l:map, l:name, l:optional)
+    execute printf('onoremap <silent><buffer> <plug>(vimtex-a%s) :<c-u>call vimtex#text_obj#%s(0, 0%s)<cr>', l:map, l:name, l:optional)
   endfor
 endfunction
 
 " }}}1
 
-function! vimtex#text_obj#commands(is_inner, mode) " {{{1
+function! vimtex#text_obj#commands(is_inner, mode) abort " {{{1
+  let l:obj = {}
+  let l:pos_save = vimtex#pos#get_cursor()
   if a:mode
     call vimtex#pos#set_cursor(getpos("'>"))
   endif
 
-  let l:cmd = vimtex#cmd#get_current()
-  if empty(l:cmd) | return | endif
+  " Get the delimited text object positions
+  for l:count in range(v:count1)
+    if !empty(l:obj)
+      call vimtex#pos#set_cursor(vimtex#pos#prev(l:obj.cmd_start))
+    endif
 
-  let l:pos_start = l:cmd.pos_start
-  let l:pos_end = l:cmd.pos_end
-
-  if a:is_inner
-    let l:pos_end.lnum = l:pos_start.lnum
-    let l:pos_end.cnum = l:pos_start.cnum + strlen(l:cmd.name) - 1
-    let l:pos_start.cnum += 1
-  elseif vimtex#pos#equal(l:pos_start, getpos("'<"))
-        \ && vimtex#pos#equal(l:pos_end, getpos("'>"))
-    let l:cursor = vimtex#pos#get_cursor()
-    call vimtex#pos#set_cursor(vimtex#pos#next(l:cursor))
+    let l:obj_prev = l:obj
+    let l:obj = {}
 
     let l:cmd = vimtex#cmd#get_current()
-    if empty(l:cmd) | return | endif
+    if empty(l:cmd) | break | endif
 
-    if vimtex#pos#smaller(l:cmd.pos_start, l:cursor)
-      let l:pos_start = l:cmd.pos_start
-      let l:pos_end = l:cmd.pos_end
+    let l:pos_start = copy(l:cmd.pos_start)
+    let l:pos_end = l:cmd.pos_end
+
+    if a:is_inner
+      let l:pos_end.lnum = l:pos_start.lnum
+      let l:pos_end.cnum = l:pos_start.cnum + strlen(l:cmd.name) - 1
+      let l:pos_start.cnum += 1
     endif
+
+    if a:mode
+          \ && vimtex#pos#equal(l:pos_start, getpos("'<"))
+          \ && vimtex#pos#equal(l:pos_end, getpos("'>"))
+      let l:pos_old = l:cmd.pos_start
+      call vimtex#pos#set_cursor(vimtex#pos#prev(l:pos_old))
+
+      let l:cmd = vimtex#cmd#get_current()
+      if empty(l:cmd) | break | endif
+
+      if vimtex#pos#smaller(l:pos_old, l:cmd.pos_end)
+        let l:pos_start = l:cmd.pos_start
+        let l:pos_end = l:cmd.pos_end
+
+        if a:is_inner
+          let l:pos_end.lnum = l:pos_start.lnum
+          let l:pos_end.cnum = l:pos_start.cnum + strlen(l:cmd.name) - 1
+          let l:pos_start.cnum += 1
+        endif
+      endif
+    endif
+
+    let l:obj = {
+          \ 'pos_start' : l:pos_start,
+          \ 'pos_end' : l:pos_end,
+          \ 'cmd_start' : l:cmd.pos_start,
+          \}
+  endfor
+
+  if empty(l:obj)
+    if empty(l:obj_prev)
+      if a:mode
+        normal! gv
+      else
+        call vimtex#pos#set_cursor(l:pos_save)
+      endif
+      return
+    endif
+    let l:obj = l:obj_prev
   endif
 
   call vimtex#pos#set_cursor(l:pos_start)
@@ -61,32 +99,173 @@ function! vimtex#text_obj#commands(is_inner, mode) " {{{1
 endfunction
 
 " }}}1
-function! vimtex#text_obj#delimited(is_inner, mode, type) " {{{1
-  if a:mode
-    let l:selection = getpos("'<")[1:2] + getpos("'>")[1:2]
-    call vimtex#pos#set_cursor(getpos("'>"))
+function! vimtex#text_obj#delimited(is_inner, mode, type) abort " {{{1
+  let l:object = {}
+  let l:prev_object = {}
+  let l:pos_save = vimtex#pos#get_cursor()
+  let l:startpos = getpos("'>")
+
+  " Get the delimited text object positions
+  for l:count in range(v:count1)
+    if !empty(l:object)
+      let l:pos_next = vimtex#pos#prev(
+            \ a:is_inner ? l:object.open : l:object.pos_start)
+
+      if a:mode
+        let l:startpos = l:pos_next
+      else
+        call vimtex#pos#set_cursor(l:pos_next)
+      endif
+    endif
+
+    if a:mode
+      let l:object = s:get_sel_delimited_visual(a:is_inner, a:type, l:startpos)
+    else
+      let [l:open, l:close] = vimtex#delim#get_surrounding(a:type)
+      let l:object = empty(l:open)
+            \ ? {} : s:get_sel_delimited(l:open, l:close, a:is_inner)
+    endif
+
+    if empty(l:object)
+      if !empty(l:prev_object)
+        let l:object = l:prev_object
+        break
+      endif
+
+      if a:mode
+        normal! gv
+      else
+        call vimtex#pos#set_cursor(l:pos_save)
+      endif
+      return
+    endif
+
+    let l:prev_object = l:object
+  endfor
+
+  " Handle empty inner objects
+  if vimtex#pos#smaller(l:object.pos_end, l:object.pos_start)
+    if v:operator ==# 'y' && !a:mode
+      return
+    endif
+
+    if index(['c', 'd'], v:operator) >= 0
+      call vimtex#pos#set_cursor(l:object.pos_start)
+      normal! ix
+    endif
+
+    let l:object.pos_end = l:object.pos_start
   endif
 
-  let [l:open, l:close] = vimtex#delim#get_surrounding(a:type)
-  if empty(l:open)
-    if a:mode
-      normal! gv
-    endif
+  " Apply selection
+  execute 'normal!' l:object.select_mode
+  call vimtex#pos#set_cursor(l:object.pos_start)
+  normal! o
+  call vimtex#pos#set_cursor(l:object.pos_end)
+endfunction
+
+" }}}1
+function! vimtex#text_obj#sections(is_inner, mode) abort " {{{1
+  let l:pos_save = vimtex#pos#get_cursor()
+  call vimtex#pos#set_cursor(vimtex#pos#next(l:pos_save))
+
+  " Get section border positions
+  let [l:pos_start, l:pos_end, l:type]
+        \ = s:get_sel_sections(a:is_inner, '')
+  if empty(l:pos_start)
+    call vimtex#pos#set_cursor(l:pos_save)
     return
   endif
 
-  let [l1, c1, l2, c2] = [l:open.lnum, l:open.cnum, l:close.lnum, l:close.cnum]
+  " Increase visual area if applicable
+  if a:mode
+        \ && visualmode() ==# 'V'
+        \ && getpos("'<")[1] == l:pos_start[0]
+        \ && getpos("'>")[1] == l:pos_end[0]
+    let [l:pos_start_new, l:pos_end_new, l:type]
+          \ = s:get_sel_sections(a:is_inner, l:type)
+    if !empty(l:pos_start_new)
+      let l:pos_start = l:pos_start_new
+      let l:pos_end = l:pos_end_new
+    endif
+  endif
 
+  " Repeat for count
+  for l:count in range(v:count1 - 1)
+    let [l:pos_start_new, l:pos_end_new, l:type]
+          \ = s:get_sel_sections(a:is_inner, l:type)
+
+    if empty(l:pos_start_new) | break | endif
+    let l:pos_start = l:pos_start_new
+    let l:pos_end = l:pos_end_new
+  endfor
+
+  " Apply selection
+  call vimtex#pos#set_cursor(l:pos_start)
+  normal! V
+  call vimtex#pos#set_cursor(l:pos_end)
+endfunction
+
+" }}}1
+
+function! s:get_sel_delimited_visual(is_inner, type, startpos) abort " {{{1
+  if a:is_inner
+    call vimtex#pos#set_cursor(vimtex#pos#next(a:startpos))
+    let [l:open, l:close] = vimtex#delim#get_surrounding(a:type)
+    if !empty(l:open)
+      let l:object = s:get_sel_delimited(l:open, l:close, a:is_inner)
+
+      " Select next pair if we reached the same selection
+      if (l:object.select_mode ==# 'v'
+          \ && getpos("'<")[1:2] == l:object.pos_start
+          \ && getpos("'>")[1:2] == l:object.pos_end)
+          \ || (l:object.select_mode ==# 'V'
+          \     && getpos("'<")[1] == l:object.pos_start[0]
+          \     && getpos("'>")[1] == l:object.pos_end[0])
+        call vimtex#pos#set_cursor(vimtex#pos#prev(l:open.lnum, l:open.cnum))
+        let [l:open, l:close] = vimtex#delim#get_surrounding(a:type)
+        if empty(l:open) | return {} | endif
+        return s:get_sel_delimited(l:open, l:close, a:is_inner)
+      endif
+    endif
+  endif
+
+  call vimtex#pos#set_cursor(a:startpos)
+  let [l:open, l:close] = vimtex#delim#get_surrounding(a:type)
+  if empty(l:open) | return {} | endif
+  let l:object = s:get_sel_delimited(l:open, l:close, a:is_inner)
+  if a:is_inner | return l:object | endif
+
+  " Select next pair if we reached the same selection
+  if (l:object.select_mode ==# 'v'
+      \ && getpos("'<")[1:2] == l:object.pos_start
+      \ && getpos("'>")[1:2] == l:object.pos_end)
+      \ || (l:object.select_mode ==# 'V'
+      \     && getpos("'<")[1] == l:object.pos_start[0]
+      \     && getpos("'>")[1] == l:object.pos_end[0])
+    call vimtex#pos#set_cursor(vimtex#pos#prev(l:open.lnum, l:open.cnum))
+    let [l:open, l:close] = vimtex#delim#get_surrounding(a:type)
+    if empty(l:open) | return {} | endif
+    return s:get_sel_delimited(l:open, l:close, a:is_inner)
+  endif
+
+  return l:object
+endfunction
+
+" }}}1
+function! s:get_sel_delimited(open, close, is_inner) abort " {{{1
   " Determine if operator is linewise
   let l:linewise = index(g:vimtex_text_obj_linewise_operators, v:operator) >= 0
 
+  let [l1, c1, l2, c2] = [a:open.lnum, a:open.cnum, a:close.lnum, a:close.cnum]
+
   " Adjust the borders
   if a:is_inner
-    if has_key(l:open, 'env_cmd') && !empty(l:open.env_cmd)
-      let l1 = l:open.env_cmd.pos_end.lnum
-      let c1 = l:open.env_cmd.pos_end.cnum+1
+    if has_key(a:open, 'env_cmd') && !empty(a:open.env_cmd)
+      let l1 = a:open.env_cmd.pos_end.lnum
+      let c1 = a:open.env_cmd.pos_end.cnum+1
     else
-      let c1 += len(l:open.match)
+      let c1 += len(a:open.match)
     endif
     let c2 -= 1
 
@@ -99,7 +278,7 @@ function! vimtex#text_obj#delimited(is_inner, mode, type) " {{{1
       let c1 = strlen(matchstr(getline(l1), '^\s*')) + 1
       let l2 -= 1
       let c2 = strlen(getline(l2))
-      if c2 == 0 && ! l:linewise
+      if c2 == 0 && !l:linewise
         let l2 -= 1
         let c2 = len(getline(l2)) + 1
       endif
@@ -108,71 +287,26 @@ function! vimtex#text_obj#delimited(is_inner, mode, type) " {{{1
       let c2 = len(getline(l2)) + 1
     endif
   else
-    let c2 += len(l:close.match) - 1
-
-    " Select next pair if we reached the same selection
-    if a:mode && l:selection == [l1, c1, l2, c2]
-      call vimtex#pos#set_cursor(vimtex#pos#next([l2, c2]))
-      let [l:open, l:close] = vimtex#delim#get_surrounding(a:type)
-      if empty(l:open)
-        normal! gv
-        return
-      endif
-      let [l1, c1, l2, c2] = [l:open.lnum, l:open.cnum,
-            \ l:close.lnum, l:close.cnum + len(l:close.match) - 1]
-    endif
+    let c2 += len(a:close.match) - 1
 
     let l:is_inline = (l2 - l1) > 1
           \ && match(strpart(getline(l1), 0, c1-1), '^\s*$') >= 0
           \ && match(strpart(getline(l2), 0, c2),   '^\s*$') >= 0
   endif
 
-  " Determine the select mode
-  let l:select_mode = l:is_inline && l:linewise ? 'V'
-        \ : (v:operator ==# ':') ? visualmode() : 'v'
-
-  " Apply selection
-  execute 'normal!' l:select_mode
-  call vimtex#pos#set_cursor(l1, c1)
-  normal! o
-  call vimtex#pos#set_cursor(l2, c2)
+  return {
+        \ 'open' : a:open,
+        \ 'close' : a:close,
+        \ 'pos_start' : [l1, c1],
+        \ 'pos_end' : [l2, c2],
+        \ 'is_inline' : l:is_inline,
+        \ 'select_mode' : l:is_inline && l:linewise
+        \      ? 'V' : (v:operator ==# ':') ? visualmode() : 'v',
+        \}
 endfunction
 
 " }}}1
-function! vimtex#text_obj#sections(is_inner, mode) " {{{1
-  let l:pos_save = vimtex#pos#get_cursor()
-  call vimtex#pos#set_cursor(vimtex#pos#next(l:pos_save))
-
-  " Get section border positions
-  let [l:pos_start, l:pos_end, l:type]
-        \ = s:get_sections_positions(a:is_inner, '')
-  if empty(l:pos_start)
-    call vimtex#pos#set_cursor(l:pos_save)
-    return
-  endif
-
-  " Increase visual area
-  if a:mode
-        \ && visualmode() ==# 'V'
-        \ && getpos("'<")[1] == l:pos_start[0]
-        \ && getpos("'>")[1] == l:pos_end[0]
-    let [l:pos_start_new, l:pos_end_new, l:type]
-          \ = s:get_sections_positions(a:is_inner, l:type)
-    if !empty(l:pos_start_new)
-      let l:pos_start = l:pos_start_new
-      let l:pos_end = l:pos_end_new
-    endif
-  endif
-
-  " Apply selection
-  call vimtex#pos#set_cursor(l:pos_start)
-  normal! V
-  call vimtex#pos#set_cursor(l:pos_end)
-endfunction
-
-" }}}1
-
-function! s:get_sections_positions(is_inner, type) " {{{1
+function! s:get_sel_sections(is_inner, type) abort " {{{1
   let l:pos_save = vimtex#pos#get_cursor()
   let l:min_val = get(s:section_to_val, a:type)
 
@@ -218,6 +352,8 @@ function! s:get_sections_positions(is_inner, type) " {{{1
   if a:is_inner
     call vimtex#pos#set_cursor(l:pos_start[0]+1, l:pos_start[1])
     let l:pos_start = searchpos('\S', 'cnW')
+    call vimtex#pos#set_cursor(l:pos_end)
+    let l:pos_end = searchpos('\S', 'bcnW')
   elseif l:sec_val ==# 'document'
     let l:pos_start = [l:pos_start[0]+1, l:pos_start[1]]
   endif
@@ -260,5 +396,3 @@ let s:section_to_val = {
       \}
 
 " }}}1
-
-" vim: fdm=marker sw=2

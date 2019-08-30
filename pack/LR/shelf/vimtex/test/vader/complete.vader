@@ -41,8 +41,8 @@ Do (Complete):
 
 Expect tex (Verify):
   \input {preamble.tex}
-  \includeonly{chapter.tex,section.tex}
-  \include{section.tex}
+  \includeonly{chapter,section}
+  \include{section}
 
 Given tex (Completion: \includepdf):
 =================================================================================
@@ -100,6 +100,35 @@ Expect tex (Verify):
 Before:
 After:
 Given:
+
+Given tex (Completion: \begin and \end):
+=================================================================================
+  \documentclass{article}
+  \usepackage{amsmath}
+  \begin{document}
+  \end{
+  \begin{
+  \end{
+  \begin{barbaz}
+  \end{
+  \end{document}
+
+Do (Complete):
+  3jA\<c-x>\<c-o>\<c-o>\<c-o>\<c-o>}\<esc>
+  jA\<c-x>\<c-o>\<c-o>\<c-o>}\<esc>
+  jA\<c-x>\<c-o>}\<esc>
+  2jA\<c-x>\<c-o>}\<esc>
+
+Expect tex (Verify):
+  \documentclass{article}
+  \usepackage{amsmath}
+  \begin{document}
+  \end{bmatrix}
+  \begin{array}
+  \end{array}
+  \begin{barbaz}
+  \end{barbaz}
+  \end{document}
 
 Execute (Cleanup):
 =================================================================================

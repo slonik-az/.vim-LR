@@ -4,8 +4,9 @@
 " Email:      karl.yngve@gmail.com
 "
 
-function! vimtex#init() " {{{1
-  call s:init_options()
+function! vimtex#init() abort " {{{1
+  call vimtex#init_options()
+
   call s:init_highlights()
   call s:init_state()
   call s:init_buffer()
@@ -22,50 +23,46 @@ function! vimtex#init() " {{{1
 endfunction
 
 " }}}1
-function! vimtex#check_plugin_clash() " {{{1
-  let l:scriptnames = vimtex#util#command('scriptnames')
-
-  let l:latexbox = !empty(filter(copy(l:scriptnames), "v:val =~# 'latex-box'"))
-  if l:latexbox
-    let l:polyglot = !empty(filter(copy(l:scriptnames), "v:val =~# 'polyglot'"))
-    call vimtex#log#warning([
-          \ 'Conflicting plugin detected: LaTeX-Box',
-          \ 'vimtex does not work as expected when LaTeX-Box is installed!',
-          \ 'Please disable or remove it to use vimtex!',
-          \])
-    if l:polyglot
-      call vimtex#log#warning([
-            \ 'LaTeX-Box is included with vim-polyglot and may be disabled with:',
-            \ 'let g:polyglot_disabled = [''latex'']',
-            \])
-    endif
-  endif
-endfunction
-
-" }}}1
-
-function! s:init_options() " {{{1
+function! vimtex#init_options() abort " {{{1
   call s:init_option('vimtex_compiler_enabled', 1)
   call s:init_option('vimtex_compiler_method', 'latexmk')
   call s:init_option('vimtex_compiler_progname',
         \ get(v:, 'progpath', get(v:, 'progname')))
   call s:init_option('vimtex_compiler_callback_hooks', [])
+  call s:init_option('vimtex_compiler_latexmk_engines', {})
+  call s:init_option('vimtex_compiler_latexrun_engines', {})
 
   call s:init_option('vimtex_complete_enabled', 1)
   call s:init_option('vimtex_complete_close_braces', 0)
-  call s:init_option('vimtex_complete_recursive_bib', 0)
+  call s:init_option('vimtex_complete_ignore_case', &ignorecase)
+  call s:init_option('vimtex_complete_smart_case', &smartcase)
+  call s:init_option('vimtex_complete_bib', {
+        \ 'simple': 0,
+        \ 'recursive': 0,
+        \ 'menu_fmt': '[@type] @author_short (@year), "@title"',
+        \ 'abbr_fmt': '',
+        \ 'custom_patterns': [],
+        \})
+  call s:init_option('vimtex_complete_ref', {
+        \ 'custom_patterns': [],
+        \})
+
+  call s:init_option('vimtex_include_search_enabled', 1)
 
   call s:init_option('vimtex_doc_enabled', 1)
   call s:init_option('vimtex_doc_handlers', [])
 
   call s:init_option('vimtex_echo_ignore_wait', 0)
+  call s:init_option('vimtex_echo_verbose_input', 1)
 
-  call s:init_option('vimtex_fold_enabled', 0)
+  call s:init_option('vimtex_env_change_autofill', 0)
+
   if &diff
-    let g:vimtex_fold_manual = 0
+    let g:vimtex_fold_enabled = 0
   else
-    call s:init_option('vimtex_fold_manual', 0)
+    call s:init_option('vimtex_fold_enabled', 0)
   endif
+  call s:init_option('vimtex_fold_manual', 0)
   call s:init_option('vimtex_fold_levelmarker', '*')
   call s:init_option('vimtex_fold_types', {})
   call s:init_option('vimtex_fold_types_defaults', {
@@ -78,6 +75,7 @@ function! s:init_options() " {{{1
         \ 'env_options' : {},
         \ 'markers' : {},
         \ 'sections' : {
+        \   'parse_levels' : 0,
         \   'sections' : [
         \     'part',
         \     'chapter',
@@ -97,6 +95,7 @@ function! s:init_options() " {{{1
         \     'hypersetup',
         \     'tikzset',
         \     'pgfplotstableread',
+        \     'lstset',
         \   ],
         \ },
         \ 'cmd_single_opt' : {
@@ -135,6 +134,7 @@ function! s:init_options() " {{{1
         \ { 'lhs' : '*',  'rhs' : '\times' },
         \ { 'lhs' : '<',  'rhs' : '\langle' },
         \ { 'lhs' : '>',  'rhs' : '\rangle' },
+        \ { 'lhs' : 'H',  'rhs' : '\hbar' },
         \ { 'lhs' : '[',  'rhs' : '\subseteq' },
         \ { 'lhs' : ']',  'rhs' : '\supseteq' },
         \ { 'lhs' : '(',  'rhs' : '\subset' },
@@ -191,11 +191,8 @@ function! s:init_options() " {{{1
         \ { 'lhs' : 'vr', 'rhs' : '\varrho' },
         \])
 
-  call s:init_option('vimtex_index_hide_line_numbers', 1)
-  call s:init_option('vimtex_index_resize', 0)
-  call s:init_option('vimtex_index_show_help', 1)
-  call s:init_option('vimtex_index_split_pos', 'vert leftabove')
-  call s:init_option('vimtex_index_split_width', 30)
+  call s:init_option('vimtex_mappings_enabled', 1)
+  call s:init_option('vimtex_mappings_disable', {})
 
   call s:init_option('vimtex_matchparen_enabled', 1)
   call s:init_option('vimtex_motion_enabled', 1)
@@ -209,19 +206,65 @@ function! s:init_options() " {{{1
   call s:init_option('vimtex_quickfix_mode', '2')
   call s:init_option('vimtex_quickfix_open_on_warning', '1')
   call s:init_option('vimtex_quickfix_blgparser', {})
+  call s:init_option('vimtex_quickfix_autoclose_after_keystrokes', '0')
+
+  call s:init_option('vimtex_syntax_enabled', 1)
+  call s:init_option('vimtex_syntax_nested', {
+        \ 'aliases' : {
+        \   'C' : 'c',
+        \   'csharp' : 'cs',
+        \ },
+        \ 'ignored' : {
+        \   'cs' : [
+        \     'csBraces',
+        \   ],
+        \   'python' : [
+        \     'pythonEscape',
+        \     'pythonBEscape',
+        \     'pythonBytesEscape',
+        \   ]
+        \ }
+        \})
+
+  call s:init_option('vimtex_texcount_custom_arg', '')
 
   call s:init_option('vimtex_text_obj_enabled', 1)
   call s:init_option('vimtex_text_obj_linewise_operators', ['d', 'y'])
 
   call s:init_option('vimtex_toc_enabled', 1)
   call s:init_option('vimtex_toc_custom_matchers', [])
-  call s:init_option('vimtex_toc_fold', 0)
-  call s:init_option('vimtex_toc_refresh_always', 1)
-  call s:init_option('vimtex_toc_tocdepth', 3)
-  call s:init_option('vimtex_toc_fold_level_start', g:vimtex_toc_tocdepth)
-  call s:init_option('vimtex_toc_show_numbers', 1)
   call s:init_option('vimtex_toc_show_preamble', 1)
-  call s:init_option('vimtex_toc_hotkeys', {})
+  call s:init_option('vimtex_toc_todo_keywords', ['TODO', 'FIXME'])
+  call s:init_option('vimtex_toc_config', {
+        \ 'name' : 'Table of contents (vimtex)',
+        \ 'mode' : 1,
+        \ 'fold_enable' : 0,
+        \ 'fold_level_start' : -1,
+        \ 'hide_line_numbers' : 1,
+        \ 'hotkeys_enabled' : 0,
+        \ 'hotkeys' : 'abcdeilmnopuvxyz',
+        \ 'hotkeys_leader' : ';',
+        \ 'layer_status' : {
+        \   'content': 1,
+        \   'label': 1,
+        \   'todo': 1,
+        \   'include': 1,
+        \ },
+        \ 'layer_keys' : {
+        \   'content': 'C',
+        \   'label': 'L',
+        \   'todo': 'T',
+        \   'include': 'I',
+        \ },
+        \ 'resize' : 0,
+        \ 'refresh_always' : 1,
+        \ 'show_help' : 1,
+        \ 'show_numbers' : 1,
+        \ 'split_pos' : 'vert leftabove',
+        \ 'split_width' : 30,
+        \ 'tocdepth' : 3,
+        \ 'todo_sorted' : 1,
+        \})
 
   call s:init_option('vimtex_view_enabled', 1)
   call s:init_option('vimtex_view_automatic', 1)
@@ -236,41 +279,61 @@ function! s:init_options() " {{{1
   call s:init_option('vimtex_view_general_options_latexmk', '')
   call s:init_option('vimtex_view_mupdf_options', '')
   call s:init_option('vimtex_view_mupdf_send_keys', '')
+  call s:init_option('vimtex_view_skim_activate', 0)
+  call s:init_option('vimtex_view_skim_reading_bar', 1)
   call s:init_option('vimtex_view_zathura_options', '')
 endfunction
 
 " }}}1
-function! s:init_option(option, default) " {{{1
-  let l:option = 'g:' . a:option
-  if !exists(l:option)
-    let {l:option} = a:default
+function! vimtex#check_plugin_clash() abort " {{{1
+  let l:scriptnames = vimtex#util#command('scriptnames')
+
+  let l:latexbox = !empty(filter(copy(l:scriptnames), "v:val =~# 'latex-box'"))
+  if l:latexbox
+    let l:polyglot = !empty(filter(copy(l:scriptnames), "v:val =~# 'polyglot'"))
+    call vimtex#log#warning([
+          \ 'Conflicting plugin detected: LaTeX-Box',
+          \ 'vimtex does not work as expected when LaTeX-Box is installed!',
+          \ 'Please disable or remove it to use vimtex!',
+          \])
+    if l:polyglot
+      call vimtex#log#warning([
+            \ 'LaTeX-Box is included with vim-polyglot and may be disabled with:',
+            \ 'let g:polyglot_disabled = [''latex'']',
+            \])
+    endif
   endif
 endfunction
 
 " }}}1
-function! s:init_highlights() " {{{1
+
+function! s:init_option(option, default) abort " {{{1
+  let l:option = 'g:' . a:option
+  if !exists(l:option)
+    let {l:option} = a:default
+  elseif type(a:default) == type({})
+    call vimtex#util#extend_recursive({l:option}, a:default, 'keep')
+  endif
+endfunction
+
+" }}}1
+function! s:init_highlights() abort " {{{1
   for [l:name, l:target] in [
         \ ['VimtexImapsArrow', 'Comment'],
         \ ['VimtexImapsLhs', 'ModeMsg'],
         \ ['VimtexImapsRhs', 'ModeMsg'],
         \ ['VimtexImapsWrapper', 'Type'],
-        \ ['VimtexIndexHelp', 'helpVim'],
-        \ ['VimtexIndexLine', 'ModeMsg'],
         \ ['VimtexInfo', 'Question'],
         \ ['VimtexInfoTitle', 'PreProc'],
-        \ ['VimtexInfoKey', 'Statement'],
-        \ ['VimtexInfoValue', 'ModeMsg'],
+        \ ['VimtexInfoKey', 'PreProc'],
+        \ ['VimtexInfoValue', 'Statement'],
         \ ['VimtexInfoOther', 'Normal'],
-        \ ['VimtexLabelsChap', 'PreProc'],
-        \ ['VimtexLabelsEq', 'Statement'],
-        \ ['VimtexLabelsFig', 'Identifier'],
-        \ ['VimtexLabelsHelp', 'helpVim'],
-        \ ['VimtexLabelsLine', 'Todo'],
-        \ ['VimtexLabelsSec', 'Type'],
-        \ ['VimtexLabelsTab', 'String'],
         \ ['VimtexMsg', 'ModeMsg'],
         \ ['VimtexSuccess', 'Statement'],
         \ ['VimtexTocHelp', 'helpVim'],
+        \ ['VimtexTocHelpKey', 'ModeMsg'],
+        \ ['VimtexTocHelpLayerOn', 'Statement'],
+        \ ['VimtexTocHelpLayerOff', 'Comment'],
         \ ['VimtexTocTodo', 'Todo'],
         \ ['VimtexTocNum', 'Number'],
         \ ['VimtexTocSec0', 'Title'],
@@ -278,8 +341,13 @@ function! s:init_highlights() " {{{1
         \ ['VimtexTocSec2', 'helpVim'],
         \ ['VimtexTocSec3', 'NonText'],
         \ ['VimtexTocSec4', 'Comment'],
-        \ ['VimtexTocTag', 'Directory'],
         \ ['VimtexTocHotkey', 'Comment'],
+        \ ['VimtexTocLabelsSecs', 'Statement'],
+        \ ['VimtexTocLabelsEq', 'PreProc'],
+        \ ['VimtexTocLabelsFig', 'Identifier'],
+        \ ['VimtexTocLabelsTab', 'String'],
+        \ ['VimtexTocIncl', 'Number'],
+        \ ['VimtexTocInclPath', 'Normal'],
         \ ['VimtexWarning', 'WarningMsg'],
         \ ['VimtexError', 'ErrorMsg'],
         \]
@@ -290,13 +358,13 @@ function! s:init_highlights() " {{{1
 endfunction
 
 " }}}1
-function! s:init_state() " {{{1
+function! s:init_state() abort " {{{1
   call vimtex#state#init()
   call vimtex#state#init_local()
 endfunction
 
 " }}}1
-function! s:init_buffer() " {{{1
+function! s:init_buffer() abort " {{{1
   " Set Vim options
   for l:suf in [
         \ '.sty',
@@ -321,12 +389,12 @@ function! s:init_buffer() " {{{1
         \ ]
     execute 'set suffixes+=' . l:suf
   endfor
-  setlocal suffixesadd=.tex,.sty,.cls
+  setlocal suffixesadd=.sty,.tex,.cls
   setlocal comments=sO:%\ -,mO:%\ \ ,eO:%%,:%
   setlocal commentstring=%%s
   setlocal iskeyword+=:
   setlocal includeexpr=vimtex#include#expr()
-  let &l:include = g:vimtex#re#tex_input
+  let &l:include = g:vimtex#re#tex_include
   let &l:define  = '\\\([egx]\|char\|mathchar\|count\|dimen\|muskip\|skip'
   let &l:define .= '\|toks\)\=def\|\\font\|\\\(future\)\=let'
   let &l:define .= '\|\\new\(count\|dimen\|skip'
@@ -338,7 +406,6 @@ function! s:init_buffer() " {{{1
 
   " Define autocommands
   augroup vimtex_buffers
-    autocmd!
     autocmd BufFilePre  <buffer> call s:filename_changed_pre()
     autocmd BufFilePost <buffer> call s:filename_changed_post()
     autocmd BufUnload   <buffer> call s:buffer_deleted('unload')
@@ -352,18 +419,20 @@ function! s:init_buffer() " {{{1
     try
       call vimtex#{l:mod}#init_buffer()
     catch /E117.*#init_/
+    catch /E127.*vimtex#profile#/
     endtry
   endfor
 endfunction
 
 " }}}1
-function! s:init_default_mappings() " {{{1
-  if !get(g:,'vimtex_mappings_enabled', 1) | return | endif
+function! s:init_default_mappings() abort " {{{1
+  if !g:vimtex_mappings_enabled | return | endif
 
-  function! s:map(mode, lhs, rhs, ...)
+  function! s:map(mode, lhs, rhs, ...) abort
     if !hasmapto(a:rhs, a:mode)
-          \ && ((a:0 > 0) || (maparg(a:lhs, a:mode) ==# ''))
-      silent execute a:mode . 'map <silent><buffer>' a:lhs a:rhs
+          \ && index(get(g:vimtex_mappings_disable, a:mode, []), a:lhs) < 0
+          \ && (empty(maparg(a:lhs, a:mode)) || a:0 > 0)
+      silent execute a:mode . 'map <silent><nowait><buffer>' a:lhs a:rhs
     endif
   endfunction
 
@@ -410,6 +479,11 @@ function! s:init_default_mappings() " {{{1
   endif
 
   if get(g:, 'vimtex_motion_enabled', 0)
+    " These are forced in order to overwrite matchit mappings
+    call s:map('n', '%', '<plug>(vimtex-%)', 1)
+    call s:map('x', '%', '<plug>(vimtex-%)', 1)
+    call s:map('o', '%', '<plug>(vimtex-%)', 1)
+
     call s:map('n', ']]', '<plug>(vimtex-]])')
     call s:map('n', '][', '<plug>(vimtex-][)')
     call s:map('n', '[]', '<plug>(vimtex-[])')
@@ -423,10 +497,31 @@ function! s:init_default_mappings() " {{{1
     call s:map('o', '[]', '<plug>(vimtex-[])')
     call s:map('o', '[[', '<plug>(vimtex-[[)')
 
-    " These are forced in order to overwrite matchit mappings
-    call s:map('n', '%', '<plug>(vimtex-%)', 1)
-    call s:map('x', '%', '<plug>(vimtex-%)', 1)
-    call s:map('o', '%', '<plug>(vimtex-%)', 1)
+    call s:map('n', ']M', '<plug>(vimtex-]M)')
+    call s:map('n', ']m', '<plug>(vimtex-]m)')
+    call s:map('n', '[M', '<plug>(vimtex-[M)')
+    call s:map('n', '[m', '<plug>(vimtex-[m)')
+    call s:map('x', ']M', '<plug>(vimtex-]M)')
+    call s:map('x', ']m', '<plug>(vimtex-]m)')
+    call s:map('x', '[M', '<plug>(vimtex-[M)')
+    call s:map('x', '[m', '<plug>(vimtex-[m)')
+    call s:map('o', ']M', '<plug>(vimtex-]M)')
+    call s:map('o', ']m', '<plug>(vimtex-]m)')
+    call s:map('o', '[M', '<plug>(vimtex-[M)')
+    call s:map('o', '[m', '<plug>(vimtex-[m)')
+
+    call s:map('n', ']/', '<plug>(vimtex-]/)')
+    call s:map('n', ']*', '<plug>(vimtex-]*)')
+    call s:map('n', '[/', '<plug>(vimtex-[/)')
+    call s:map('n', '[*', '<plug>(vimtex-[*)')
+    call s:map('x', ']/', '<plug>(vimtex-]/)')
+    call s:map('x', ']*', '<plug>(vimtex-]*)')
+    call s:map('x', '[/', '<plug>(vimtex-[/)')
+    call s:map('x', '[*', '<plug>(vimtex-[*)')
+    call s:map('o', ']/', '<plug>(vimtex-]/)')
+    call s:map('o', ']*', '<plug>(vimtex-]*)')
+    call s:map('o', '[/', '<plug>(vimtex-[/)')
+    call s:map('o', '[*', '<plug>(vimtex-[*)')
   endif
 
   if get(g:, 'vimtex_text_obj_enabled', 0)
@@ -457,11 +552,6 @@ function! s:init_default_mappings() " {{{1
     call s:map('n', '<localleader>lT', '<plug>(vimtex-toc-toggle)')
   endif
 
-  if get(g:, 'vimtex_labels_enabled', 0)
-    call s:map('n', '<localleader>ly', '<plug>(vimtex-labels-open)')
-    call s:map('n', '<localleader>lY', '<plug>(vimtex-labels-toggle)')
-  endif
-
   if has_key(b:vimtex, 'viewer')
     call s:map('n', '<localleader>lv', '<plug>(vimtex-view)')
     if has_key(b:vimtex.viewer, 'reverse_search')
@@ -480,12 +570,12 @@ endfunction
 
 " }}}1
 
-function! s:filename_changed_pre() " {{{1
+function! s:filename_changed_pre() abort " {{{1
   let s:filename_changed = expand('%:p') ==# b:vimtex.tex
 endfunction
 
 " }}}1
-function! s:filename_changed_post() " {{{1
+function! s:filename_changed_post() abort " {{{1
   if s:filename_changed
     let l:base_old = b:vimtex.base
     let b:vimtex.tex = fnamemodify(expand('%'), ':p')
@@ -508,7 +598,7 @@ function! s:filename_changed_post() " {{{1
 endfunction
 
 " }}}1
-function! s:buffer_deleted(reason) " {{{1
+function! s:buffer_deleted(reason) abort " {{{1
   "
   " We need a simple cache of buffer ids because a buffer unload might clear
   " buffer variables, so that a subsequent buffer wipe will not trigger a full
@@ -528,7 +618,7 @@ function! s:buffer_deleted(reason) " {{{1
 endfunction
 
 " }}}1
-function! s:quit() " {{{1
+function! s:quit() abort " {{{1
   for l:state in vimtex#state#list_all()
     call l:state.cleanup()
   endfor
@@ -544,5 +634,3 @@ let s:modules = map(
       \ 'fnamemodify(v:val, '':t:r'')')
 
 " }}}1
-
-" vim: fdm=marker sw=2

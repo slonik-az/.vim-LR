@@ -1,7 +1,11 @@
 """ <!LR> PRE-config  {{{
 
+" Use vim, not vi api
+set nocompatible
+
 " All autocmd in this file should go into vimrc group
 augroup vimrc
+  " Remove all vimrc autocommands
   autocmd!
 augroup END
 
@@ -9,7 +13,9 @@ augroup END
 set viminfo=
 
 """ Map <Leader> key
-let mapleader="\<Space>"
+let mapleader = "\<Space>"
+""" Map <LocalLeader> key. [experimental] Keep <LocalLeader> and <Leader> the same.
+let maplocalleader = "\<Space>"
 
 " map <D-,> :call cursor(0, (virtcol('$')+2)/4)<CR>
 " map <M-.> :call cursor(0, (virtcol('$')+1)/2)<CR>
@@ -36,9 +42,11 @@ set tw=104
 " Settings {{{1
 " Switch syntax highlighting on, when the terminal has colors
 syntax on
+" Enable filetype detection, plugin, indent files loading
+filetype plugin indent on
 
-" Use vim, not vi api
-set nocompatible
+" Security setting disabling expressions in the modeline. (vim >= 8.1.1365)
+set nomodelineexpr
 
 " Backup files settings
 set backup
@@ -55,6 +63,10 @@ set history=100
 
 " Always show cursor line and column
 set ruler
+
+" Automatic formatting (auto-insert comment markers, etc). Unfortunately, the value set here would not
+" stick. Plugins liberally override it.
+set formatoptions=tq
 
 " Show incomplete commands
 set showcmd
@@ -123,9 +135,12 @@ set clipboard+=unnamed
 " Don't show intro
 " set shortmess+=I
 
-" Better splits (new windows appear above and to the left)
+""" Better splits (new windows appear above and to the left)
 set nosplitbelow
 set nosplitright
+"" New buffer is at bottom-left?
+" set splitbelow
+" set nosplitright
 
 " Highlight the current line
 set cursorline
@@ -152,6 +167,9 @@ set showmatch
 
 """ Allow dash in keywords like "upper-case"
 set iskeyword+=-
+
+""" fillchars settings. See ':h fillchars' for details
+set fillchars=fold:.
 
 """ LaTeX modes general settings
 " enable folding by section. In *.tex file modeline put vim:fdm=syntax:
@@ -182,6 +200,11 @@ set grepprg=grep\ -nH
 " }}}1
 
 " Plugins {{{1
+"" Read man-pages   {{{
+" Comes with standard Vim distribution
+runtime ftplugin/man.vim
+
+"}}}
     """ Theme for screen and print      {{{
 
 " set background=light
@@ -314,6 +337,23 @@ sunmap <M-b>
 " map <C-S-Down> <Plug>IndentWiseBlockScopeBoundaryEnd
 " sunmap <C-S-Down>
     " }}}
+""" vimtex plugin settings {{{
+
+"" Enable Skim (Mac) as a pdf viewer
+let g:vimtex_view_method = 'skim'
+"" Set this option to 1 to make Skim have focus after command |:VimtexView| in
+"" addition to being moved to the foreground.
+let g:vimtex_view_skim_activate = 1
+
+"" Configure latexmk: disable continuous recompile mode (on file changes).
+let g:vimtex_compiler_latexmk = {
+  \ 'continuous' : 0,
+  \ }
+
+"" Disable all warnings from latex compilation process:
+let g:vimtex_quickfix_latexlog = {'default' : 0}
+
+" }}}
     """ vim-latex AKA latex-suite       {{{
 " Disable folding in latex-suite plugin
 let g:Tex_Folding=0
@@ -360,7 +400,7 @@ let R_assign_map = "<M-->"
 "" vim-markdown-folding  {{{
 
 "" Nested style of folds.
-let g:markdown_fold_style = 'nested'
+" let g:markdown_fold_style = 'nested'
 " Exec cmd :FoldToggle to toggle between 'nested' and 'stacked' styles.
 "
 
@@ -371,20 +411,33 @@ let g:vimwiki_conceallevel = 1 " 0 - do not conceal chars marked with conceal sy
 let g:vimwiki_global_ext = 1 " 0/1 - disable/enable creating of temporary wikis.
 let g:vimwiki_path      = './'
 let g:vimwiki_path_html = './'
-let g:vimwiki_maxhi     = 1  " max decorations
-let g:vimwiki_auto_toc  = 1  " auto-generate table-of-contents
+let g:vimwiki_maxhi     = 1 " max decorations
+let g:vimwiki_auto_toc  = 1 " auto-generate table-of-contents
 let g:vimwiki_html_header_numbering = 2
 let g:vimwiki_folding = 'syntax'
 
 let wiki_1 = {}
 let wiki_1.path  = '~/vimwiki/'
 let wiki_1.path_html  = '~/vimwiki_html/'
-let wiki_1.maxhi = 1  " max decorations
-let wiki_1.auto_toc = 1  " auto-generate table-of-contents
+let wiki_1.auto_toc = 1 " auto-generate table-of-contents
+let wiki_1.list_margin = 0 " vimwiki-option-list_margin: left margin in bullet lists
 
-" let g:vimwiki_list = [wiki_1]
+let g:vimwiki_list = [wiki_1]
 
 "" }}}
+"" vim-go -- golang plugin  {{{
+
+" Use this option to change default path for vim-go tools when using
+" :GoInstallBinaries and :GoUpdateBinaries|. If not set $GOBIN or $GOPATH/bin is used.
+let g:go_bin_path = "~/dev/go/bin"
+
+" This option lets 'g:go_bin_path' (or its default value) take precedence over
+" $PATH when invoking a tool command such as :GoFmt or :GoImports.
+" Enabling this option ensures that the binaries installed via
+" :GoInstallBinaries and :GoUpdateBinaries are the same ones that are invoked via the tool commands.
+let g:go_search_bin_path_first = 1
+
+"}}}
 
 " }}}1
 
@@ -422,17 +475,19 @@ endfun
 
 augroup vimrc
   " file formats
-  autocmd Filetype gitcommit setlocal spell textwidth=88
+  autocmd Filetype gitcommit setlocal spell textwidth=99
   " http://vim.wikia.com/wiki/Word_wrap_without_line_breaks :
   autocmd Filetype markdown setlocal wrap linebreak nolist textwidth=0 wrapmargin=0
   autocmd FileType sh,ruby,yaml,zsh,vim setlocal shiftwidth=2 tabstop=4 softtabstop=4 expandtab
   autocmd FileType vimwiki              setlocal shiftwidth=2 tabstop=2 softtabstop=2 expandtab
   autocmd FileType tex,lyx setlocal foldmarker=<<:,>>:
+  " setting formatoptions:
+  autocmd FileType * setlocal fo-=c fo-=r fo-=o
 
   " specify syntax highlighting for specific files
   autocmd BufRead,BufNewFile *.note,*.notes setfiletype text
   autocmd Bufread,BufNewFile *.spv set filetype=php
-  autocmd Bufread,BufNewFile *.md set filetype=markdown " Vim interprets .md as 'modula2' otherwise, see :set filetype?
+  " autocmd Bufread,BufNewFile *.md set filetype=markdown " Vim interprets .md as 'modula2' otherwise, see :set filetype?
 augroup END
 
 " Create a 'scratch buffer' which is a temporary buffer Vim wont ask to save
@@ -475,12 +530,12 @@ if exists(':RainbowParenthesesToggle')
 endif
 
 """ List all marker folds in a 'Quickfix List' and jump into it
-nmap <Leader>f :vimgrep /\m{{{\\|<<</ %<CR>:copen<CR>
+nmap <Leader>f :vimgrep /\m{{{\\|<<:/ %<CR>:copen<CR>
 """ List all LR headers in a 'Quickfix List' and jump into it
 nmap <Leader>h :vimgrep /\m^[ /\|%*#=~+-]*\|>.*$/ %<CR>:copen<CR>
 """ List LR headers & folds:
-nmap <Leader>F :vimgrep /\m{{{\\|<<<\\|\(^[ /\|%*#=~+-]*\|>.*$\)/ %<CR>:copen<CR>
-nmap <Leader>H :vimgrep /\m\(^[ /\|%*#=~+-]*\|>.*$\)\\|{{{\\|<<</ %<CR>:copen<CR>
+nmap <Leader>F :vimgrep /\m{{{\\|<<:\\|\(^[ /\|%*#=~+-]*\|>.*$\)/ %<CR>:copen<CR>
+nmap <Leader>H :vimgrep /\m\(^[ /\|%*#=~+-]*\|>.*$\)\\|{{{\\|<<:/ %<CR>:copen<CR>
 
 """ QuickFix window does not resize with <C-W>= or <C-W>0
 " because of winfixheight setting. Fix it:
